@@ -22,6 +22,11 @@
   - `[x]` Crear `/decir-ia` en `src/commands/utility/deciria.js` (voces de IA)
   - `[x]` Modificar `src/commands/utility/clearqueue.js` para usar el nuevo manager
   - `[x]` Desplegar cambios locales y hacer commit final de Git
+- `[x]` Métricas de Voz en el Dashboard (Voz Favorita & Desglose)
+  - `[x]` Agregar columna `details` a `command_logs` en `src/database.js`
+  - `[x]` Registrar la voz seleccionada en los logs de comandos en `interactionCreate.js`
+  - `[x]` Consultar estadísticas de voces en `src/utils/logger.js`
+  - `[x]` Añadir tarjetas e interfaz de desglose en `index.html` y `app.js`
 - `[x]` Desplegar los cambios y verificar
 - `[x]` Reparar `getAudioStream` faltante en `ttsService.js` (la reproducción de voz fallaba tras la modularización)
 - `[x]` Reintegrar intensidades (Normal/Emocionado/Triste) y voz E-girl en `/decir-ia`
