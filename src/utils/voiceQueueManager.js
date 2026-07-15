@@ -24,6 +24,8 @@ const VOICE_LABELS = {
 	coqueta: 'E-girl Coqueta (IA)',
 	tifani: 'E-girl Tifani ASMR (IA)',
 	seductora: 'E-girl Seductora (IA)',
+	ari: 'AriGameplays (IA)',
+	rubius: 'El Rubius (IA)',
 	dalas: 'Dalas Review (IA)',
 	chavez: 'Hugo Chávez (IA)',
 	google: 'Google Translate',
