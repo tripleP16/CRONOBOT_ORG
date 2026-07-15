@@ -35,18 +35,29 @@ function updateDashboard(data) {
 	const uniqueGuilds = new Set(data.recentLogs.map(log => log.guildId).filter(id => id && id !== 'Mensaje Privado'));
 	document.getElementById('servers-count').textContent = Math.max(1, uniqueGuilds.size);
 
-	// 2. Tabla de Comandos Más Usados
+	// 2. Tabla de Comandos Más Usados (con barra de progreso visual)
 	const commandsTableBody = document.querySelector('#commands-table tbody');
 	commandsTableBody.innerHTML = '';
 	
 	if (data.commandStats.length === 0) {
 		commandsTableBody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ningún comando ejecutado todavía</td></tr>';
 	} else {
+		// Buscamos el conteo máximo de ejecuciones para calcular proporciones
+		const maxCount = Math.max(...data.commandStats.map(s => s.count));
+
 		data.commandStats.forEach(stat => {
+			const percentage = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
 			const tr = document.createElement('tr');
 			tr.innerHTML = `
 				<td><span class="cmd-badge ${getCmdBadgeClass(stat.name)}">/${stat.name}</span></td>
-				<td style="font-weight: 600;">${stat.count}</td>
+				<td>
+					<div class="cmd-cell">
+						<span style="font-weight: 600;">${stat.count}</span>
+						<div class="progress-container">
+							<div class="progress-bar" style="width: ${percentage}%;"></div>
+						</div>
+					</div>
+				</td>
 			`;
 			commandsTableBody.appendChild(tr);
 		});
