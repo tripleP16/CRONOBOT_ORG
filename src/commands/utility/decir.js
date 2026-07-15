@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType } = require('@discordjs/voice');
 const googleTTS = require('google-tts-api');
 
 module.exports = {
@@ -56,7 +56,7 @@ module.exports = {
 
 			// 5. Creamos el reproductor y el recurso de audio
 			const player = createAudioPlayer();
-			const resource = createAudioResource(url);
+			const resource = createAudioResource(url, { inputType: StreamType.Arbitrary });
 
 			player.play(resource);
 			connection.subscribe(player);
