@@ -67,10 +67,17 @@ if (!process.env.DISCORD_TOKEN) {
 	process.exit(1);
 }
 
+const { initDatabase } = require('./database');
 const { startWebServer } = require('./server');
 
-client.login(process.env.DISCORD_TOKEN).then(() => {
-	startWebServer();
+// Inicializamos la base de datos antes de logear el bot
+initDatabase().then(() => {
+	client.login(process.env.DISCORD_TOKEN).then(() => {
+		startWebServer();
+	}).catch(err => {
+		console.error('[ERROR] Error al iniciar sesión en Discord:', err.message);
+	});
 }).catch(err => {
-	console.error('[ERROR] Error al iniciar sesión en Discord:', err.message);
+	console.error('[ERROR] No se pudo inicializar la base de datos, abortando...', err);
+	process.exit(1);
 });
