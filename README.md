@@ -10,7 +10,7 @@ El bot destaca por incorporar un **Dashboard Web en tiempo real** (Express) que 
 
 *   **Moderación Gamificada:** Comandos de moderación (`/mute` y `/voiceblock`) condicionados a resolver un reto matemático de habilidad rápida (10 segundos) antes de aplicarse.
 *   **Audio TTS con Cola & Robustez:** Comandos de síntesis de voz en tiempo real con sistema de colas secuenciales por servidor, control inteligente contra expulsiones forzadas y desconexión por inactividad (10 segundos).
-*   **Voces de IA Clonadas:** Integración con la API de **Fish Audio** para reproducir las voces de **El Xokas**, **E-girl**, **Dalas Review** y **Hugo Chávez**, con intensidades de tono (Normal/Emocionado/Triste) y fallback automático a Google Translate en caso de desconexión o falta de créditos.
+*   **Voces de IA Clonadas:** Integración con la API de **Fish Audio** para reproducir las voces de **El Xokas**, **E-girl**, **Dalas Review** y **Hugo Chávez**, con intensidades de tono (Normal/Emocionado/Triste/Cabreado a gritos) y fallback automático a Google Translate en caso de desconexión o falta de créditos.
 *   **Dashboard Web Premium (SaaS Layout):**
     *   **Dashboard interactivo** con selector de tema claro/oscuro persistente (guardado en `localStorage`).
     *   **Moderación en Vivo:** Visualización de sanciones activas de voz con nombres de usuario resueltos por la API de Discord, fotos de perfil (avatares) y temporizadores dinámicos de cuenta regresiva en segundos reales.
@@ -96,7 +96,7 @@ El bot cuenta con 7 comandos registrados nativamente:
 | `/mute` | `<usuario>` `<segundos>` `[razon]` | `Mute Members` | Silencia y ensordece al usuario en canales de voz tras completar un reto matemático. |
 | `/voiceblock` | `<usuario>` `<canal>` `<segundos>` `[razon]` | `Manage Channels` | Bloquea temporalmente al usuario de un canal de voz tras resolver un reto matemático. |
 | `/decir` | `<texto>` | Ninguno | Conecta al bot al canal de voz y lee el texto usando la voz clásica de **Google Translate** (Gratuito y rápido). |
-| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado y Triste. |
+| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste y Cabreado (gritando). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
 
 ---
