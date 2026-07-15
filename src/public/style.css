@@ -364,7 +364,7 @@ body.light-theme .toggle-icon.sun {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 20px;
-	margin-bottom: 32px;
+	margin-bottom: 24px;
 }
 
 .stat-card {
@@ -412,7 +412,50 @@ body.light-theme .toggle-icon.sun {
 }
 
 /* ==========================================================================
-   GRID DE SECCIONES (TABLAS Y AUDITORÍA)
+   ACTIVE SANCTIONS PANEL
+   ========================================================================== */
+.active-sanctions-panel {
+	margin-bottom: 32px;
+}
+
+.user-cell {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.user-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 1.5px solid var(--border-color);
+	object-fit: cover;
+}
+
+.user-default-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-color: var(--border-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.9rem;
+}
+
+.countdown-badge {
+	font-family: monospace;
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: #ef4444;
+	background-color: rgba(239, 68, 68, 0.1);
+	padding: 4px 10px;
+	border-radius: 6px;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ==========================================================================
+   GRID DE SECCIONES (GRAPHICS & AUDITORÍA)
    ========================================================================== */
 .sections-grid {
 	display: grid;
@@ -444,6 +487,16 @@ body.light-theme .toggle-icon.sun {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+}
+
+/* CHART CONTAINER WRAPPER */
+.chart-wrapper {
+	position: relative;
+	width: 100%;
+	height: 240px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 /* TABLES SYSTEM */
@@ -485,30 +538,6 @@ tbody tr:hover {
 
 body.light-theme tbody tr:hover {
 	background-color: rgba(0, 0, 0, 0.01);
-}
-
-/* CELLS AND PROGRESS BARS */
-.cmd-cell {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 15px;
-}
-
-.progress-container {
-	flex-grow: 1;
-	height: 6px;
-	background-color: var(--progress-bg);
-	border-radius: 4px;
-	overflow: hidden;
-	max-width: 180px;
-}
-
-.progress-bar {
-	height: 100%;
-	background: var(--accent-gradient);
-	border-radius: 4px;
-	transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* SCROLL DE AUDITORÍA LOGS */
@@ -555,7 +584,7 @@ body.light-theme tbody tr:hover {
 
 .cmd-ping {
 	background-color: rgba(56, 189, 248, 0.1);
-	color: #0ea5e9;
+	color: #38bdf8;
 	border: 1px solid rgba(56, 189, 248, 0.2);
 }
 

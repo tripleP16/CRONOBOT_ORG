@@ -120,6 +120,19 @@ async function loadActiveBlocks(client) {
 }
 
 /**
+ * Obtiene todos los bloqueos activos directamente de PostgreSQL
+ */
+async function getActiveBlocksFromDB() {
+	try {
+		const res = await query('SELECT user_id as "userId", guild_id as "guildId", channel_id as "channelId", ends_at as "endsAt" FROM voice_blocks');
+		return res.rows;
+	} catch (error) {
+		console.error('[ERROR] Error al consultar bloqueos activos de la BD:', error);
+		return [];
+	}
+}
+
+/**
  * Consulta de forma síncrona si un canal está bloqueado para un usuario en un servidor
  */
 function isUserVoiceBlocked(userId, guildId, channelId) {
@@ -131,4 +144,5 @@ module.exports = {
 	removeVoiceBlock,
 	loadActiveBlocks,
 	isUserVoiceBlocked,
+	getActiveBlocksFromDB,
 };

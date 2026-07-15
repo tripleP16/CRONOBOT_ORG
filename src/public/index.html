@@ -3,10 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>CRONOBOT - Panel de Control</title>
+	<title>Panel de Control - CRONOBOT</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<!-- CHART.JS CDN -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +27,7 @@
 				<span class="logo-icon">🤖</span>
 				<div class="logo-text">
 					<h2>CRONOBOT</h2>
-					<span class="badge-version">v1.2.0</span>
+					<span class="badge-version">v1.3.0</span>
 				</div>
 			</div>
 
@@ -36,8 +38,8 @@
 					<span class="status-text">Bot Activo</span>
 				</div>
 				<div class="info-details">
-					<p>Plataforma: <strong>Contabo VPS</strong></p>
-					<p>Motor: <strong>Node.js v24</strong></p>
+					<p>Plataforma: <strong>Coolify VPS</strong></p>
+					<p>Motor: <strong>PostgreSQL</strong></p>
 				</div>
 			</div>
 
@@ -93,7 +95,7 @@
 					<div class="card-glow"></div>
 					<div class="stat-card-header">
 						<span class="stat-icon">🎙️</span>
-						<span class="stat-label">Comandos Disponibles</span>
+						<span class="stat-label">Comandos Activos</span>
 					</div>
 					<p class="stat-value">4</p>
 				</div>
@@ -102,31 +104,41 @@
 					<div class="card-glow"></div>
 					<div class="stat-card-header">
 						<span class="stat-icon">🏡</span>
-						<span class="stat-label">Servidores en Cache</span>
+						<span class="stat-label">Servidores Activos</span>
 					</div>
 					<p class="stat-value" id="servers-count">1</p>
 				</div>
 			</section>
 
+			<!-- SANCIONES ACTIVAS EN TIEMPO REAL -->
+			<div class="glass-panel active-sanctions-panel">
+				<h2>🛡️ Moderación de Voz en Vivo (Sanciones Activas)</h2>
+				<div class="table-wrapper">
+					<table id="sanctions-table">
+						<thead>
+							<tr>
+								<th>Usuario</th>
+								<th>Tipo de Sanción</th>
+								<th>Tiempo Restante (Cuenta Regresiva)</th>
+								<th>Servidor</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- Dinámico -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+
 			<!-- DATA SECTIONS -->
 			<div class="sections-grid">
 				<!-- LEFT: STATS & CHARTS -->
 				<div class="data-column">
-					<!-- COMMANDS USAGE -->
+					<!-- CHART.JS POPULARITY CHART -->
 					<div class="glass-panel">
-						<h2>📈 Popularidad de Comandos</h2>
-						<div class="table-wrapper">
-							<table id="commands-table">
-								<thead>
-									<tr>
-										<th>Comando</th>
-										<th>Uso / Barra Proporcional</th>
-									</tr>
-								</thead>
-								<tbody>
-									<!-- Dinámico -->
-								</tbody>
-							</table>
+						<h2>📊 Uso de Comandos</h2>
+						<div class="chart-wrapper">
+							<canvas id="commandsChart"></canvas>
 						</div>
 					</div>
 
@@ -138,7 +150,7 @@
 								<thead>
 									<tr>
 										<th>Usuario</th>
-										<th>Uso del Bot</th>
+										<th>Comandos Ejecutados</th>
 									</tr>
 								</thead>
 								<tbody>

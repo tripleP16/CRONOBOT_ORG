@@ -73,7 +73,7 @@ const { startWebServer } = require('./server');
 // Inicializamos la base de datos antes de logear el bot
 initDatabase().then(() => {
 	client.login(process.env.DISCORD_TOKEN).then(() => {
-		startWebServer();
+		startWebServer(client);
 	}).catch(err => {
 		console.error('[ERROR] Error al iniciar sesión en Discord:', err.message);
 	});

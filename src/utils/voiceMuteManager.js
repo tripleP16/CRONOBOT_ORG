@@ -133,6 +133,19 @@ async function loadActiveMutes(client) {
 }
 
 /**
+ * Obtiene todos los silencios activos directamente de PostgreSQL
+ */
+async function getActiveMutesFromDB() {
+	try {
+		const res = await query('SELECT user_id as "userId", guild_id as "guildId", ends_at as "endsAt" FROM voice_mutes');
+		return res.rows;
+	} catch (error) {
+		console.error('[ERROR] Error al consultar silencios activos de la BD:', error);
+		return [];
+	}
+}
+
+/**
  * Consulta de forma síncrona si un usuario está silenciado en un servidor
  */
 function isUserVoiceMuted(userId, guildId) {
@@ -144,4 +157,5 @@ module.exports = {
 	removeVoiceMute,
 	loadActiveMutes,
 	isUserVoiceMuted,
+	getActiveMutesFromDB,
 };
