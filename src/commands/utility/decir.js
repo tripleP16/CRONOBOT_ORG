@@ -2,10 +2,26 @@ const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType } = require('@discordjs/voice');
 const googleTTS = require('google-tts-api');
 
+// Mapa global para las colas de cada servidor (Key: guildId)
+const guildQueues = new Map();
+
+function getOrCreateQueue(guildId) {
+	if (!guildQueues.has(guildId)) {
+		guildQueues.set(guildId, {
+			queue: [],
+			isPlaying: false,
+			connection: null,
+			player: null,
+			disconnectTimeout: null
+		});
+	}
+	return guildQueues.get(guildId);
+}
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('decir')
-		.setDescription('Conecta al bot a tu canal de voz actual y habla usando voz de IA.')
+		.setDescription('Conecta al bot a tu canal de voz actual y habla usando voz de IA (con cola de espera).')
 		.addStringOption(option =>
 			option.setName('texto')
 				.setDescription('El texto que deseas que el bot diga (máximo 200 caracteres).')
@@ -14,6 +30,7 @@ module.exports = {
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
 		const voiceChannel = interaction.member.voice.channel;
+		const guildId = interaction.guild.id;
 
 		// 1. Validamos que el usuario esté en un canal de voz
 		if (!voiceChannel) {
@@ -32,64 +49,130 @@ module.exports = {
 			});
 		}
 
-		// Confirmamos la acción al usuario de forma efímera
-		await interaction.reply({
-			content: `🎙️ Conectando al canal para decir: *"${text}"*...`,
-			ephemeral: true,
+		const serverQueue = getOrCreateQueue(guildId);
+
+		// Añadimos el nuevo mensaje a la cola
+		serverQueue.queue.push({
+			text,
+			voiceChannel,
+			interaction
 		});
 
-		try {
-			// 3. Generamos la URL del audio TTS usando Google Translate TTS
-			const url = googleTTS.getAudioUrl(text, {
-				lang: 'es', // Español
-				slow: false,
-				host: 'https://translate.google.com',
-				timeout: 10000,
+		// Si ya está reproduciendo, respondemos con la posición en la cola
+		if (serverQueue.isPlaying) {
+			const position = serverQueue.queue.length;
+			return interaction.reply({
+				content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera para leer: *"${text}"*`,
+				ephemeral: true
 			});
+		}
 
-			// 4. Conectamos al canal de voz de Discord
-			const connection = joinVoiceChannel({
-				channelId: voiceChannel.id,
-				guildId: interaction.guild.id,
-				adapterCreator: interaction.guild.voiceAdapterCreator,
-			});
+		// Si está libre, respondemos que iniciará y comenzamos a procesar
+		await interaction.reply({
+			content: `🎙️ Conectando al canal para leer: *"${text}"*...`,
+			ephemeral: true
+		});
 
-			// 5. Creamos el reproductor y el recurso de audio
-			const player = createAudioPlayer();
-			const resource = createAudioResource(url, { inputType: StreamType.Arbitrary });
+		// Cancelamos cualquier temporizador de desconexión por inactividad que esté activo
+		if (serverQueue.disconnectTimeout) {
+			clearTimeout(serverQueue.disconnectTimeout);
+			serverQueue.disconnectTimeout = null;
+		}
 
-			player.play(resource);
-			connection.subscribe(player);
+		// Iniciamos el procesamiento de la cola
+		processQueue(guildId);
+	},
+};
 
-			// 6. Configurar desconexión automática al terminar
-			player.on(AudioPlayerStatus.Idle, () => {
-				// Esperamos 1.5 segundos de silencio final antes de salir
-				setTimeout(() => {
-					if (connection) connection.destroy();
-				}, 1500);
-			});
+async function processQueue(guildId) {
+	const serverQueue = guildQueues.get(guildId);
+	if (!serverQueue) return;
 
-			// Manejo de errores de reproducción
-			player.on('error', error => {
-				console.error('[ERROR] Error en el reproductor de audio TTS:', error.message);
-				if (connection) connection.destroy();
-			});
-
-			// Timeout de seguridad en caso de que se quede colgado en reproducción (ej: 25 segundos)
-			setTimeout(() => {
+	// Si la cola está vacía, marcamos como libre y programamos la desconexión
+	if (serverQueue.queue.length === 0) {
+		serverQueue.isPlaying = false;
+		
+		console.log(`[INFO] Cola vacía en servidor ${guildId}. Programando desconexión en 10 segundos...`);
+		serverQueue.disconnectTimeout = setTimeout(() => {
+			if (serverQueue.connection) {
+				console.log(`[INFO] Desconectando por inactividad en servidor ${guildId}.`);
 				try {
-					if (connection) connection.destroy();
+					serverQueue.connection.destroy();
 				} catch (e) {
 					// Ignorar si ya fue destruido
 				}
-			}, 25000);
+				serverQueue.connection = null;
+				serverQueue.player = null;
+			}
+		}, 10000); // 10 segundos de espera
+		return;
+	}
 
-		} catch (error) {
-			console.error('[ERROR] Error al procesar o reproducir el TTS:', error);
-			return interaction.followUp({
-				content: '❌ Hubo un error al intentar generar o reproducir la voz de IA.',
-				ephemeral: true,
+	// Marcamos que está reproduciendo y extraemos el primer elemento
+	serverQueue.isPlaying = true;
+	const current = serverQueue.queue.shift();
+
+	try {
+		// Generamos la URL del audio TTS usando Google Translate
+		const url = googleTTS.getAudioUrl(current.text, {
+			lang: 'es',
+			slow: false,
+			host: 'https://translate.google.com',
+			timeout: 10000,
+		});
+
+		// Conectamos al canal de voz de Discord
+		if (!serverQueue.connection || serverQueue.connection.joinConfig.channelId !== current.voiceChannel.id) {
+			if (serverQueue.connection) {
+				try { serverQueue.connection.destroy(); } catch (e) {}
+			}
+			
+			serverQueue.connection = joinVoiceChannel({
+				channelId: current.voiceChannel.id,
+				guildId: guildId,
+				adapterCreator: current.voiceChannel.guild.voiceAdapterCreator,
 			});
 		}
-	},
-};
+
+		// Creamos el reproductor si no existe
+		if (!serverQueue.player) {
+			serverQueue.player = createAudioPlayer();
+			serverQueue.connection.subscribe(serverQueue.player);
+		}
+
+		const resource = createAudioResource(url, { inputType: StreamType.Arbitrary });
+		serverQueue.player.play(resource);
+
+		// Al terminar de reproducir el audio actual, pasamos al siguiente
+		serverQueue.player.removeAllListeners(AudioPlayerStatus.Idle);
+		serverQueue.player.removeAllListeners('error');
+
+		serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+			// Esperamos 1 segundo de silencio natural y procesamos la cola
+			setTimeout(() => {
+				processQueue(guildId);
+			}, 1000);
+		});
+
+		// Manejo de errores
+		serverQueue.player.on('error', error => {
+			console.error(`[ERROR] Error en el reproductor de audio TTS (Server ${guildId}):`, error.message);
+			// Pasamos al siguiente mensaje a pesar del error
+			setTimeout(() => {
+				processQueue(guildId);
+			}, 1000);
+		});
+
+	} catch (error) {
+		console.error(`[ERROR] Error al procesar el TTS en cola (Server ${guildId}):`, error);
+		try {
+			await current.interaction.followUp({
+				content: `❌ Hubo un error al reproducir tu mensaje: *"${current.text}"*`,
+				ephemeral: true
+			});
+		} catch (e) {}
+		
+		// Pasamos al siguiente mensaje
+		processQueue(guildId);
+	}
+}
