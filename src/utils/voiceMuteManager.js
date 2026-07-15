@@ -1,72 +1,58 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { query } = require('../database');
 
-const filePath = path.join(__dirname, '..', 'data', 'voice_mutes.json');
-
-// Mapa para almacenar los temporizadores activos en memoria
 const activeTimers = new Map();
+const activeMutesCache = new Set(); // Caché en memoria para validaciones de voz síncronas rápidas
 
-// Helper para leer las sanciones de voz del archivo JSON
-function readMutes() {
-	try {
-		if (!fs.existsSync(filePath)) {
-			const dirPath = path.dirname(filePath);
-			if (!fs.existsSync(dirPath)) {
-				fs.mkdirSync(dirPath, { recursive: true });
-			}
-			fs.writeFileSync(filePath, JSON.stringify([]));
-			return [];
-		}
-		const data = fs.readFileSync(filePath, 'utf8');
-		return JSON.parse(data || '[]');
-	} catch (error) {
-		console.error('[ERROR] Error leyendo voice_mutes.json:', error);
-		return [];
-	}
-}
-
-// Helper para escribir las sanciones de voz al archivo JSON
-function writeMutes(mutes) {
-	try {
-		fs.writeFileSync(filePath, JSON.stringify(mutes, null, 2));
-	} catch (error) {
-		console.error('[ERROR] Error escribiendo voice_mutes.json:', error);
-	}
+function getCacheKey(guildId, userId) {
+	return `${guildId}-${userId}`;
 }
 
 /**
- * Registra una sanción de silencio de voz
+ * Registra un silencio de voz en PostgreSQL e inicia el temporizador local
  */
-function addVoiceMute(client, userId, guildId, notificationChannelId, durationMs) {
+async function addVoiceMute(client, userId, guildId, notificationChannelId, durationMs) {
 	const endsAt = Date.now() + durationMs;
-	const mutes = readMutes();
+	
+	try {
+		// Guardamos o actualizamos en la base de datos
+		await query(`
+			INSERT INTO voice_mutes (user_id, guild_id, ends_at, notification_channel_id)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (user_id, guild_id)
+			DO UPDATE SET ends_at = EXCLUDED.ends_at, notification_channel_id = EXCLUDED.notification_channel_id
+		`, [userId, guildId, endsAt, notificationChannelId]);
 
-	// Si el usuario ya estaba silenciado, limpiamos su temporizador anterior
-	const existingMuteIndex = mutes.findIndex(m => m.userId === userId && m.guildId === guildId);
-	if (existingMuteIndex !== -1) {
-		mutes.splice(existingMuteIndex, 1);
+		// Actualizamos caché en memoria y temporizadores locales
+		activeMutesCache.add(getCacheKey(guildId, userId));
 		clearTimer(userId, guildId);
+		setupUnmuteTimer(client, userId, guildId, durationMs);
+		
+		console.log(`[INFO] Silencio de voz guardado en Postgres para ${userId} por ${durationMs}ms.`);
+	} catch (error) {
+		console.error('[ERROR] Error al registrar silencio de voz en Postgres:', error);
 	}
-
-	mutes.push({ userId, guildId, endsAt, notificationChannelId });
-	writeMutes(mutes);
-
-	// Programamos el desmuteo automático
-	setupUnmuteTimer(client, userId, guildId, durationMs);
-	console.log(`[INFO] Sanción de voz registrada para usuario ${userId} en servidor ${guildId} por ${durationMs}ms.`);
 }
 
 /**
- * Remueve la sanción y restaura la voz del usuario
+ * Remueve la sanción de silencio, actualiza Postgres y quita restricciones de Discord
  */
 async function removeVoiceMute(client, userId, guildId) {
-	const mutes = readMutes();
-	const mute = mutes.find(m => m.userId === userId && m.guildId === guildId);
-	
-	const filteredMutes = mutes.filter(m => !(m.userId === userId && m.guildId === guildId));
-	writeMutes(filteredMutes);
-
+	activeMutesCache.delete(getCacheKey(guildId, userId));
 	clearTimer(userId, guildId);
+
+	let mute = null;
+	try {
+		// Buscamos el log antes de borrarlo para saber a qué canal notificar
+		const res = await query('SELECT notification_channel_id FROM voice_mutes WHERE user_id = $1 AND guild_id = $2', [userId, guildId]);
+		if (res.rows.length > 0) {
+			mute = res.rows[0];
+		}
+		
+		// Borramos el registro de la base de datos
+		await query('DELETE FROM voice_mutes WHERE user_id = $1 AND guild_id = $2', [userId, guildId]);
+	} catch (error) {
+		console.error('[ERROR] Error al borrar silencio de voz en Postgres:', error);
+	}
 
 	try {
 		const guild = await client.guilds.fetch(guildId).catch(() => null);
@@ -82,9 +68,9 @@ async function removeVoiceMute(client, userId, guildId) {
 			console.log(`[EXITO] Desmuteado de voz aplicado en canal de voz al usuario ${member.user.tag}`);
 		}
 
-		// Enviamos la notificación al canal de texto donde se ejecutó el comando
-		if (mute && mute.notificationChannelId) {
-			const textChannel = await client.channels.fetch(mute.notificationChannelId).catch(() => null);
+		// Enviamos la notificación al canal de texto
+		if (mute && mute.notification_channel_id) {
+			const textChannel = await client.channels.fetch(mute.notification_channel_id).catch(() => null);
 			if (textChannel) {
 				await textChannel.send(`🔊 **[Silencio Finalizado]** El silencio de voz de <@${userId}> ha terminado. Ya puede volver a hablar en los canales de voz.`).catch(err => console.warn('[WARN] No se pudo enviar mensaje de fin de silencio:', err.message));
 			}
@@ -95,7 +81,7 @@ async function removeVoiceMute(client, userId, guildId) {
 }
 
 /**
- * Configura un temporizador para desmutear al usuario
+ * Configura el temporizador setTimeout local para ejecutar el desmuteo automático
  */
 function setupUnmuteTimer(client, userId, guildId, delayMs) {
 	const timerKey = `${guildId}-${userId}`;
@@ -108,7 +94,7 @@ function setupUnmuteTimer(client, userId, guildId, delayMs) {
 }
 
 /**
- * Cancela un temporizador en memoria
+ * Limpia el temporizador de la memoria
  */
 function clearTimer(userId, guildId) {
 	const timerKey = `${guildId}-${userId}`;
@@ -119,32 +105,38 @@ function clearTimer(userId, guildId) {
 }
 
 /**
- * Carga e inicializa todos los silencios activos (para usar en el ready.js)
+ * Carga todos los silencios guardados en PostgreSQL al iniciar el bot
  */
-function loadActiveMutes(client) {
-	const mutes = readMutes();
-	const now = Date.now();
-	
-	console.log(`[INFO] Cargando ${mutes.length} silencios de voz guardados...`);
-
-	for (const mute of mutes) {
-		const timeLeft = mute.endsAt - now;
+async function loadActiveMutes(client) {
+	console.log('[INFO] Cargando silencios de voz guardados desde PostgreSQL...');
+	try {
+		const res = await query('SELECT user_id as "userId", guild_id as "guildId", ends_at as "endsAt", notification_channel_id as "notificationChannelId" FROM voice_mutes');
+		const mutes = res.rows;
+		const now = Date.now();
 		
-		if (timeLeft <= 0) {
-			console.log(`[INFO] El silencio de ${mute.userId} ya expiró. Removiendo sanción...`);
-			removeVoiceMute(client, mute.userId, mute.guildId);
-		} else {
-			setupUnmuteTimer(client, mute.userId, mute.guildId, timeLeft);
+		console.log(`[INFO] Se encontraron ${mutes.length} silencios guardados.`);
+
+		for (const mute of mutes) {
+			const timeLeft = mute.endsAt - now;
+			activeMutesCache.add(getCacheKey(mute.guildId, mute.userId));
+			
+			if (timeLeft <= 0) {
+				console.log(`[INFO] El silencio de ${mute.userId} ya expiró. Removiendo sanción...`);
+				await removeVoiceMute(client, mute.userId, mute.guildId);
+			} else {
+				setupUnmuteTimer(client, mute.userId, mute.guildId, timeLeft);
+			}
 		}
+	} catch (error) {
+		console.error('[ERROR] Error al cargar silencios de voz activos desde PostgreSQL:', error);
 	}
 }
 
 /**
- * Comprueba si un usuario tiene una sanción de voz activa
+ * Consulta de forma síncrona si un usuario está silenciado en un servidor
  */
 function isUserVoiceMuted(userId, guildId) {
-	const mutes = readMutes();
-	return mutes.some(m => m.userId === userId && m.guildId === guildId);
+	return activeMutesCache.has(getCacheKey(guildId, userId));
 }
 
 module.exports = {

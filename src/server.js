@@ -9,9 +9,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta de API para obtener las estadísticas consolidadas
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', async (req, res) => {
 	try {
-		const stats = getStats();
+		const stats = await getStats();
 		res.json(stats);
 	} catch (error) {
 		console.error('[ERROR] Error al procesar estadísticas de API:', error);

@@ -1,96 +1,54 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { query } = require('../database');
 
-const filePath = path.join(__dirname, '..', 'data', 'command_logs.json');
-
-// Helper para leer logs de comandos del archivo JSON
-function readLogs() {
+/**
+ * Registra el uso de un comando en PostgreSQL
+ */
+async function logCommand(userId, username, commandName, guildId, guildName) {
 	try {
-		if (!fs.existsSync(filePath)) {
-			const dirPath = path.dirname(filePath);
-			if (!fs.existsSync(dirPath)) {
-				fs.mkdirSync(dirPath, { recursive: true });
-			}
-			fs.writeFileSync(filePath, JSON.stringify([]));
-			return [];
-		}
-		const data = fs.readFileSync(filePath, 'utf8');
-		return JSON.parse(data || '[]');
+		await query(
+			`INSERT INTO command_logs (user_id, username, command_name, guild_id, guild_name) 
+			 VALUES ($1, $2, $3, $4, $5)`,
+			[userId, username, commandName, guildId, guildName]
+		);
+		console.log(`[LOG] Comando /${commandName} registrado en PostgreSQL para ${username}.`);
 	} catch (error) {
-		console.error('[ERROR] Error leyendo command_logs.json:', error);
-		return [];
-	}
-}
-
-// Helper para escribir logs de comandos al archivo JSON
-function writeLogs(logs) {
-	try {
-		fs.writeFileSync(filePath, JSON.stringify(logs, null, 2));
-	} catch (error) {
-		console.error('[ERROR] Error escribiendo command_logs.json:', error);
+		console.error('[ERROR] Error al registrar comando en PostgreSQL:', error);
 	}
 }
 
 /**
- * Registra el uso de un comando en el archivo JSON
+ * Procesa los logs de PostgreSQL y devuelve estadísticas consolidadas
  */
-function logCommand(userId, username, commandName, guildId, guildName) {
-	const logs = readLogs();
-	
-	const newLog = {
-		userId,
-		username,
-		commandName,
-		guildId,
-		guildName,
-		timestamp: new Date().toISOString(),
-	};
+async function getStats() {
+	try {
+		// Ejecutamos consultas en paralelo para máxima eficiencia
+		const [totalResult, commandResult, userResult, recentResult] = await Promise.all([
+			query('SELECT COUNT(*) FROM command_logs'),
+			query('SELECT command_name as name, COUNT(*)::integer as count FROM command_logs GROUP BY command_name ORDER BY count DESC'),
+			query('SELECT username, COUNT(*)::integer as count FROM command_logs GROUP BY username ORDER BY count DESC LIMIT 5'),
+			query('SELECT user_id as "userId", username, command_name as "commandName", guild_id as "guildId", guild_name as "guildName", timestamp FROM command_logs ORDER BY timestamp DESC LIMIT 20')
+		]);
 
-	logs.push(newLog);
-	writeLogs(logs);
-	console.log(`[LOG] Comando /${commandName} registrado para ${username}.`);
-}
+		const totalExecutions = parseInt(totalResult.rows[0].count) || 0;
+		const commandStats = commandResult.rows;
+		const topUsers = userResult.rows;
+		const recentLogs = recentResult.rows;
 
-/**
- * Procesa los logs y devuelve estadísticas consolidadas
- */
-function getStats() {
-	const logs = readLogs();
-
-	const totalExecutions = logs.length;
-	const commandCount = {};
-	const userCount = {};
-
-	// Procesamos los logs
-	for (const log of logs) {
-		// Frecuencia por comando
-		commandCount[log.commandName] = (commandCount[log.commandName] || 0) + 1;
-		
-		// Frecuencia por usuario
-		userCount[log.username] = (userCount[log.username] || 0) + 1;
+		return {
+			totalExecutions,
+			commandStats,
+			topUsers,
+			recentLogs,
+		};
+	} catch (error) {
+		console.error('[ERROR] Error al procesar estadísticas de PostgreSQL:', error);
+		return {
+			totalExecutions: 0,
+			commandStats: [],
+			topUsers: [],
+			recentLogs: [],
+		};
 	}
-
-	// Convertimos el top de usuarios a un array ordenado
-	const topUsers = Object.keys(userCount)
-		.map(username => ({ username, count: userCount[username] }))
-		.sort((a, b) => b.count - a.count)
-		.slice(0, 5); // Solo los 5 más activos
-
-	// Convertimos la frecuencia por comando en un formato estructurado
-	const commandStats = Object.keys(commandCount).map(name => ({
-		name,
-		count: commandCount[name],
-	})).sort((a, b) => b.count - a.count);
-
-	// Obtenemos los últimos 20 comandos ejecutados
-	const recentLogs = [...logs].reverse().slice(0, 20);
-
-	return {
-		totalExecutions,
-		commandStats,
-		topUsers,
-		recentLogs,
-	};
 }
 
 module.exports = {

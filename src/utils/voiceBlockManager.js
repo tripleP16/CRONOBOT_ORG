@@ -1,79 +1,65 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { query } = require('../database');
 
-const filePath = path.join(__dirname, '..', 'data', 'voice_blocks.json');
-
-// Mapa para almacenar los temporizadores activos de desbloqueo en memoria
 const activeTimers = new Map();
+const activeBlocksCache = new Set(); // Caché en memoria para validaciones de voz síncronas rápidas
 
-// Helper para leer los bloqueos de voz del archivo JSON
-function readBlocks() {
-	try {
-		if (!fs.existsSync(filePath)) {
-			const dirPath = path.dirname(filePath);
-			if (!fs.existsSync(dirPath)) {
-				fs.mkdirSync(dirPath, { recursive: true });
-			}
-			fs.writeFileSync(filePath, JSON.stringify([]));
-			return [];
-		}
-		const data = fs.readFileSync(filePath, 'utf8');
-		return JSON.parse(data || '[]');
-	} catch (error) {
-		console.error('[ERROR] Error leyendo voice_blocks.json:', error);
-		return [];
-	}
-}
-
-// Helper para escribir los bloqueos de voz al archivo JSON
-function writeBlocks(blocks) {
-	try {
-		fs.writeFileSync(filePath, JSON.stringify(blocks, null, 2));
-	} catch (error) {
-		console.error('[ERROR] Error escribiendo voice_blocks.json:', error);
-	}
+function getCacheKey(guildId, userId, channelId) {
+	return `${guildId}-${userId}-${channelId}`;
 }
 
 /**
- * Registra un bloqueo de canal de voz
+ * Registra un bloqueo de canal de voz en PostgreSQL e inicia el temporizador local
  */
-function addVoiceBlock(client, userId, guildId, channelId, notificationChannelId, durationMs) {
+async function addVoiceBlock(client, userId, guildId, channelId, notificationChannelId, durationMs) {
 	const endsAt = Date.now() + durationMs;
-	const blocks = readBlocks();
+	
+	try {
+		// Guardamos o actualizamos en la base de datos
+		await query(`
+			INSERT INTO voice_blocks (user_id, guild_id, channel_id, ends_at, notification_channel_id)
+			VALUES ($1, $2, $3, $4, $5)
+			ON CONFLICT (user_id, guild_id, channel_id)
+			DO UPDATE SET ends_at = EXCLUDED.ends_at, notification_channel_id = EXCLUDED.notification_channel_id
+		`, [userId, guildId, channelId, endsAt, notificationChannelId]);
 
-	// Si el usuario ya tenía un bloqueo para ese canal, limpiamos el temporizador anterior
-	const existingBlockIndex = blocks.findIndex(b => b.userId === userId && b.guildId === guildId && b.channelId === channelId);
-	if (existingBlockIndex !== -1) {
-		blocks.splice(existingBlockIndex, 1);
+		// Actualizamos caché en memoria y temporizadores locales
+		activeBlocksCache.add(getCacheKey(guildId, userId, channelId));
 		clearTimer(userId, guildId, channelId);
+		setupUnblockTimer(client, userId, guildId, channelId, durationMs);
+		
+		console.log(`[INFO] Bloqueo de canal de voz guardado en Postgres para ${userId} en canal ${channelId} por ${durationMs}ms.`);
+	} catch (error) {
+		console.error('[ERROR] Error al registrar bloqueo de canal de voz en Postgres:', error);
 	}
-
-	blocks.push({ userId, guildId, channelId, endsAt, notificationChannelId });
-	writeBlocks(blocks);
-
-	// Programamos el desbloqueo automático
-	setupUnlockTimer(client, userId, guildId, channelId, durationMs);
-	console.log(`[INFO] Bloqueo de voz registrado para usuario ${userId} en canal ${channelId} (servidor ${guildId}) por ${durationMs}ms.`);
 }
 
 /**
- * Remueve el bloqueo de canal de voz
+ * Remueve la sanción de bloqueo, actualiza Postgres y notifica en el canal de texto
  */
 async function removeVoiceBlock(client, userId, guildId, channelId) {
-	const blocks = readBlocks();
-	const block = blocks.find(b => b.userId === userId && b.guildId === guildId && b.channelId === channelId);
-
-	const filteredBlocks = blocks.filter(b => !(b.userId === userId && b.guildId === guildId && b.channelId === channelId));
-	writeBlocks(filteredBlocks);
-
+	activeBlocksCache.delete(getCacheKey(guildId, userId, channelId));
 	clearTimer(userId, guildId, channelId);
 
+	let block = null;
 	try {
-		// Enviamos la notificación al canal de texto donde se ejecutó el comando
-		if (block && block.notificationChannelId) {
-			const textChannel = await client.channels.fetch(block.notificationChannelId).catch(() => null);
+		// Buscamos el log antes de borrarlo para saber a qué canal notificar
+		const res = await query('SELECT notification_channel_id FROM voice_blocks WHERE user_id = $1 AND guild_id = $2 AND channel_id = $3', [userId, guildId, channelId]);
+		if (res.rows.length > 0) {
+			block = res.rows[0];
+		}
+		
+		// Borramos el registro de la base de datos
+		await query('DELETE FROM voice_blocks WHERE user_id = $1 AND guild_id = $2 AND channel_id = $3', [userId, guildId, channelId]);
+	} catch (error) {
+		console.error('[ERROR] Error al borrar bloqueo de canal de voz en Postgres:', error);
+	}
+
+	try {
+		// Enviamos la notificación al canal de texto
+		if (block && block.notification_channel_id) {
+			const textChannel = await client.channels.fetch(block.notification_channel_id).catch(() => null);
 			if (textChannel) {
-				await textChannel.send(`🔊 **[Bloqueo Finalizado]** El bloqueo de canal de voz <#${channelId}> para <@${userId}> ha terminado. Ya puede volver a entrar.`).catch(err => console.warn('[WARN] No se pudo enviar mensaje de fin de bloqueo:', err.message));
+				await textChannel.send(`🔊 **[Bloqueo de Canal Finalizado]** El bloqueo de <@${userId}> para acceder al canal de voz <#${channelId}> ha terminado. Ya puede volver a ingresar.`).catch(err => console.warn('[WARN] No se pudo enviar mensaje de fin de bloqueo:', err.message));
 			}
 		}
 	} catch (error) {
@@ -82,12 +68,12 @@ async function removeVoiceBlock(client, userId, guildId, channelId) {
 }
 
 /**
- * Configura un temporizador para remover el bloqueo de voz
+ * Configura el temporizador setTimeout local para ejecutar el desbloqueo automático
  */
-function setupUnlockTimer(client, userId, guildId, channelId, delayMs) {
-	const timerKey = `${guildId}-${channelId}-${userId}`;
+function setupUnblockTimer(client, userId, guildId, channelId, delayMs) {
+	const timerKey = `${guildId}-${userId}-${channelId}`;
 	const timer = setTimeout(async () => {
-		console.log(`[INFO] Tiempo de bloqueo cumplido para usuario ${userId} en canal ${channelId}. Removiendo bloqueo...`);
+		console.log(`[INFO] Tiempo de bloqueo cumplido para el usuario ${userId} en canal ${channelId}. Removiendo restricciones...`);
 		await removeVoiceBlock(client, userId, guildId, channelId);
 	}, delayMs);
 
@@ -95,10 +81,10 @@ function setupUnlockTimer(client, userId, guildId, channelId, delayMs) {
 }
 
 /**
- * Cancela un temporizador en memoria
+ * Limpia el temporizador de la memoria
  */
 function clearTimer(userId, guildId, channelId) {
-	const timerKey = `${guildId}-${channelId}-${userId}`;
+	const timerKey = `${guildId}-${userId}-${channelId}`;
 	if (activeTimers.has(timerKey)) {
 		clearTimeout(activeTimers.get(timerKey));
 		activeTimers.delete(timerKey);
@@ -106,37 +92,43 @@ function clearTimer(userId, guildId, channelId) {
 }
 
 /**
- * Carga e inicializa todos los bloqueos activos al arrancar el bot (ready.js)
+ * Carga todos los bloqueos guardados en PostgreSQL al iniciar el bot
  */
-function loadActiveVoiceBlocks(client) {
-	const blocks = readBlocks();
-	const now = Date.now();
+async function loadActiveBlocks(client) {
+	console.log('[INFO] Cargando bloqueos de canal de voz guardados desde PostgreSQL...');
+	try {
+		const res = await query('SELECT user_id as "userId", guild_id as "guildId", channel_id as "channelId", ends_at as "endsAt", notification_channel_id as "notificationChannelId" FROM voice_blocks');
+		const blocks = res.rows;
+		const now = Date.now();
+		
+		console.log(`[INFO] Se encontraron ${blocks.length} bloqueos guardados.`);
 
-	console.log(`[INFO] Cargando ${blocks.length} bloqueos de canales de voz...`);
-
-	for (const block of blocks) {
-		const timeLeft = block.endsAt - now;
-
-		if (timeLeft <= 0) {
-			console.log(`[INFO] El bloqueo de ${block.userId} para el canal ${block.channelId} ya expiró. Removiendo bloqueo...`);
-			removeVoiceBlock(client, block.userId, block.guildId, block.channelId);
-		} else {
-			setupUnlockTimer(client, block.userId, block.guildId, block.channelId, timeLeft);
+		for (const block of blocks) {
+			const timeLeft = block.endsAt - now;
+			activeBlocksCache.add(getCacheKey(block.guildId, block.userId, block.channelId));
+			
+			if (timeLeft <= 0) {
+				console.log(`[INFO] El bloqueo de ${block.userId} en canal ${block.channelId} ya expiró. Removiendo sanción...`);
+				await removeVoiceBlock(client, block.userId, block.guildId, block.channelId);
+			} else {
+				setupUnblockTimer(client, block.userId, block.guildId, block.channelId, timeLeft);
+			}
 		}
+	} catch (error) {
+		console.error('[ERROR] Error al cargar bloqueos de canal de voz desde PostgreSQL:', error);
 	}
 }
 
 /**
- * Comprueba si un usuario tiene un bloqueo de voz activo en un canal específico
+ * Consulta de forma síncrona si un canal está bloqueado para un usuario en un servidor
  */
 function isUserVoiceBlocked(userId, guildId, channelId) {
-	const blocks = readBlocks();
-	return blocks.some(b => b.userId === userId && b.guildId === guildId && b.channelId === channelId);
+	return activeBlocksCache.has(getCacheKey(guildId, userId, channelId));
 }
 
 module.exports = {
 	addVoiceBlock,
 	removeVoiceBlock,
-	loadActiveVoiceBlocks,
+	loadActiveBlocks,
 	isUserVoiceBlocked,
 };
