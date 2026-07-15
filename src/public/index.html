@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>CRONOBOT - Dashboard de Control</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="app-container">
+		<!-- HEADER -->
+		<header class="app-header">
+			<div class="header-logo">
+				<span class="logo-icon">🤖</span>
+				<h1>CRONOBOT <span class="badge-active">Dashboard</span></h1>
+			</div>
+			<div class="header-status">
+				<span class="status-indicator"></span>
+				<span class="status-text">Bot En Línea</span>
+			</div>
+		</header>
+
+		<!-- MAIN DASHBOARD -->
+		<main class="app-main">
+			<!-- TOP CARDS -->
+			<section class="stats-overview">
+				<div class="stat-card">
+					<div class="card-icon">⚡</div>
+					<div class="card-info">
+						<h3>Total Ejecuciones</h3>
+						<p id="total-commands">0</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="card-icon">📊</div>
+					<div class="card-info">
+						<h3>Comandos Activos</h3>
+						<p id="active-commands-count">3</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="card-icon">👥</div>
+					<div class="card-info">
+						<h3>Servidores Activos</h3>
+						<p id="servers-count">1</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- DATA GRID -->
+			<div class="dashboard-grid">
+				<!-- SECCIÓN IZQUIERDA: ESTADÍSTICAS -->
+				<div class="grid-column">
+					<!-- COMANDOS MÁS USADOS -->
+					<div class="data-box">
+						<h2>📈 Comandos Más Usados</h2>
+						<div class="table-container">
+							<table id="commands-table">
+								<thead>
+									<tr>
+										<th>Comando</th>
+										<th>Ejecuciones</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Dinámico -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- TOP USUARIOS -->
+					<div class="data-box">
+						<h2>🏆 Top Usuarios Activos</h2>
+						<div class="table-container">
+							<table id="users-table">
+								<thead>
+									<tr>
+										<th>Usuario</th>
+										<th>Comandos</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Dinámico -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- SECCIÓN DERECHA: LOGS RECIENTES -->
+				<div class="grid-column">
+					<div class="data-box logs-box">
+						<div class="box-header">
+							<h2>📜 Historial de Ejecuciones Recientes</h2>
+							<span class="live-indicator">LIVE</span>
+						</div>
+						<div class="logs-container">
+							<table id="logs-table">
+								<thead>
+									<tr>
+										<th>Hora</th>
+										<th>Usuario</th>
+										<th>Comando</th>
+										<th>Servidor</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Dinámico -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<!-- FOOTER -->
+		<footer class="app-footer">
+			<p>© 2026 CRONOBOT. Diseñado por Diego Cumares (CRONOXT).</p>
+		</footer>
+	</div>
+
+	<script src="app.js"></script>
+</body>
+</html>

@@ -15,6 +15,15 @@ module.exports = {
 
 		try {
 			await command.execute(interaction);
+			// Registramos la ejecución exitosa del comando en los logs
+			const { logCommand } = require('../utils/logger');
+			logCommand(
+				interaction.user.id,
+				interaction.user.tag,
+				interaction.commandName,
+				interaction.guildId,
+				interaction.guild?.name || 'Mensaje Privado'
+			);
 		} catch (error) {
 			console.error(`[ERROR] Error ejecutando /${interaction.commandName}:`, error);
 			

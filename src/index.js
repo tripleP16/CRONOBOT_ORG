@@ -67,6 +67,10 @@ if (!process.env.DISCORD_TOKEN) {
 	process.exit(1);
 }
 
-client.login(process.env.DISCORD_TOKEN).catch(err => {
+const { startWebServer } = require('./server');
+
+client.login(process.env.DISCORD_TOKEN).then(() => {
+	startWebServer();
+}).catch(err => {
 	console.error('[ERROR] Error al iniciar sesión en Discord:', err.message);
 });
