@@ -16,6 +16,10 @@ const FISH_VOICE_MODELS = {
 	tifani: () => process.env.FISH_AUDIO_TIFANI_MODEL_ID || '6e7e70b4befd4df4b2314069b2ee92ec',
 	// E-girl de tono suave e íntimo (modelo comunitario "Seductora")
 	seductora: () => process.env.FISH_AUDIO_SEDUCTORA_MODEL_ID || '5f7d136576e8467ca911b66f2ae16ac7',
+	// Voz clonada de AriGameplays (modelo comunitario "Arigameplays")
+	ari: () => process.env.FISH_AUDIO_ARI_MODEL_ID || 'a7a8e99837144ffbb78a4f5072199426',
+	// Voz clonada de El Rubius (modelo comunitario "Rubius")
+	rubius: () => process.env.FISH_AUDIO_RUBIUS_MODEL_ID || 'a43b1ac435f74a84984d083f8adaa0d9',
 	// Voz clonada de Dalas Review (modelo comunitario "Dalas Review")
 	dalas: () => process.env.FISH_AUDIO_DALAS_MODEL_ID || '7b1f244402da4b04889bf7e7830c8af5',
 	// Voz clonada de Hugo Chávez (modelo comunitario "Hugo Chavez (ExPresidente de Venezuela)")
