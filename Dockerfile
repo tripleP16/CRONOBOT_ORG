@@ -6,6 +6,9 @@ WORKDIR /usr/src/app
 # Copiar package.json y package-lock.json (si existe)
 COPY package*.json ./
 
+# Instalar herramientas necesarias de compilación C++ y FFmpeg
+RUN apk add --no-cache ffmpeg
+
 # Instalar solo las dependencias de producción
 RUN npm ci --only=production
 
