@@ -35,3 +35,4 @@
 - `[x]` Agregar tres voces E-girl adicionales (Coqueta, Tifani ASMR y Seductora) en `/decir-ia`
 - `[x]` Agregar voces de IA de AriGameplays y El Rubius en `/decir-ia`
 - `[x]` Agregar intensidad "Cachondo/a" (seductor susurrante) en `/decir-ia`
+- `[x]` Crear comando de entretenimiento `/dado` para lanzar un número aleatorio de 1 a 6
