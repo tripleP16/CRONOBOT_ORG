@@ -7,10 +7,13 @@ if (!connectionString) {
 	process.exit(1);
 }
 
+// Por defecto en servidores locales o contenedores internos de Coolify no se usa SSL.
+// Solo habilitamos SSL si la cadena de conexión lo requiere explícitamente.
+const hasSSLParams = connectionString.includes('sslmode=require') || connectionString.includes('ssl=true');
+
 const pool = new Pool({
 	connectionString,
-	// En entornos locales o de desarrollo sin certificados válidos, deshabilitamos la verificación estricta de SSL
-	ssl: connectionString.includes('sslmode=disable') ? false : { rejectUnauthorized: false }
+	ssl: hasSSLParams ? { rejectUnauthorized: false } : false
 });
 
 // Helper para ejecutar consultas rápidas
