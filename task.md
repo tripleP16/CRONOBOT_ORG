@@ -23,3 +23,5 @@
   - `[x]` Modificar `src/commands/utility/clearqueue.js` para usar el nuevo manager
   - `[x]` Desplegar cambios locales y hacer commit final de Git
 - `[x]` Desplegar los cambios y verificar
+- `[x]` Reparar `getAudioStream` faltante en `ttsService.js` (la reproducción de voz fallaba tras la modularización)
+- `[x]` Reintegrar intensidades (Normal/Emocionado/Triste) y voz E-girl en `/decir-ia`
