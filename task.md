@@ -25,3 +25,4 @@
 - `[x]` Desplegar los cambios y verificar
 - `[x]` Reparar `getAudioStream` faltante en `ttsService.js` (la reproducción de voz fallaba tras la modularización)
 - `[x]` Reintegrar intensidades (Normal/Emocionado/Triste) y voz E-girl en `/decir-ia`
+- `[x]` Agregar voces de IA de Dalas Review y Hugo Chávez en `/decir-ia`

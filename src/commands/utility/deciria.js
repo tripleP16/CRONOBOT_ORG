@@ -5,7 +5,7 @@ const { isFishVoiceAvailable } = require('../../utils/ttsService');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('decir-ia')
-		.setDescription('Conecta al bot a tu canal de voz y habla usando voces clonadas por IA (El Xokas, E-girl).')
+		.setDescription('Conecta al bot a tu canal de voz y habla usando voces clonadas por IA.')
 		.addStringOption(option =>
 			option.setName('texto')
 				.setDescription('El texto que deseas que el bot diga (máximo 200 caracteres).')
@@ -17,7 +17,9 @@ module.exports = {
 				.setRequired(false)
 				.addChoices(
 					{ name: 'El Xokas (IA)', value: 'xokas' },
-					{ name: 'E-girl (IA)', value: 'egirl' }
+					{ name: 'E-girl (IA)', value: 'egirl' },
+					{ name: 'Dalas Review (IA)', value: 'dalas' },
+					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
 				))
 		.addStringOption(option =>
 			option.setName('intensidad')
