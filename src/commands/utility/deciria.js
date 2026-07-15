@@ -34,7 +34,8 @@ module.exports = {
 					{ name: 'Normal', value: 'normal' },
 					{ name: 'Emocionado', value: 'emocionado' },
 					{ name: 'Triste', value: 'triste' },
-					{ name: 'Cabreado (gritando)', value: 'cabreado' }
+					{ name: 'Cabreado (gritando)', value: 'cabreado' },
+					{ name: 'Cachondo/a (seductor)', value: 'cachondo' }
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');

@@ -29,3 +29,4 @@
 - `[x]` Agregar intensidad "Cabreado" (gritando) en `/decir-ia`
 - `[x]` Agregar tres voces E-girl adicionales (Coqueta, Tifani ASMR y Seductora) en `/decir-ia`
 - `[x]` Agregar voces de IA de AriGameplays y El Rubius en `/decir-ia`
+- `[x]` Agregar intensidad "Cachondo/a" (seductor susurrante) en `/decir-ia`
