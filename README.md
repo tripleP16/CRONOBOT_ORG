@@ -26,6 +26,12 @@ El bot cuenta con un sistema de retos matemáticos rápidos mediante botones que
    CLIENT_ID=tu_client_id_aqui
    GUILD_ID=tu_guild_id_de_pruebas_aqui
    PORT=3000
+   DATABASE_URL=postgresql://postgres:password@host:5432/cronobot?sslmode=disable
+   
+   # Opcionales para voz IA (El Xokas)
+   FISH_AUDIO_API_KEY=tu_api_key_aqui
+   FISH_AUDIO_XOKAS_MODEL_ID=8f23453397d14e4d9a579bad5aab41a8
+   FISH_AUDIO_MODEL=s2.1-pro-free
    ```
 3. Registra los comandos de barra en la API de Discord:
    ```bash
@@ -40,14 +46,15 @@ El bot cuenta con un sistema de retos matemáticos rápidos mediante botones que
 
 ## 🤖 Comandos Disponibles (Slash Commands)
 
-Todos los usuarios pueden ver e intentar ejecutar los comandos, pero para que se apliquen deberán resolver un reto matemático de selección múltiple mediante botones en menos de **10 segundos**:
-
 *   **`/ping`:** Mide la latencia de respuesta del bot y la API de Discord.
-*   **`/mute <usuario> <duracion_segundos> [razon]`:** Silencia y ensordece (Server Mute/Deafen) a un miembro en canales de voz por el tiempo seleccionado (máximo 60s). Al expirar, le devuelve la voz de forma automática.
-*   **`/voiceblock <usuario> <canal> <duracion_segundos> [razon]`:** Bloquea temporalmente a un usuario para que no pueda entrar a un canal de voz específico (máximo 60s). Si intenta unirse, el bot lo desconectará de inmediato.
-*   **`/decir <texto> [voz] [intensidad]`:** Conecta el bot a tu canal de voz y lee el texto con TTS (cola de espera por servidor). Soporta voces clonadas por IA — **El Xokas** y **E-girl** — con intensidades **normal**, **emocionado** o **triste** (vía [Fish Audio](https://fish.audio), requiere `FISH_AUDIO_API_KEY` en el `.env`), o la voz clásica de Google Translate como respaldo.
-*   **`/clearqueue`:** Vacía la cola de mensajes TTS pendientes del servidor.
+*   **`/mute <usuario> <duracion_segundos> [razon]`:** Silencia y ensordece (Server Mute/Deafen) a un miembro en canales de voz por el tiempo seleccionado (máximo 60s, con reto de 10s).
+*   **`/voiceblock <usuario> <canal> <duracion_segundos> [razon]`:** Bloquea temporalmente a un usuario para que no pueda entrar a un canal de voz específico (máximo 60s, con reto de 10s).
 *   **`/creador`:** Muestra un embed estético con la información de contacto y tecnología del desarrollador (Diego Cumares / CRONOXT).
+*   **`/decir <texto> [voz]`:** Conecta al bot a tu canal de voz actual y lee el texto usando voz de IA en español.
+    *   *Opciones de voz:* **El Xokas (IA)** (por defecto si se configura la API Key) y **Google Translate** (clásica).
+    *   *Cola de espera:* Si varios usuarios envían textos, el bot los lee en orden de llegada sin cortarse.
+    *   *Inactividad:* Si la cola se vacía, se desconecta solo tras 10 segundos de inactividad.
+*   **`/clearqueue`:** Vaciá la cola de espera de mensajes de voz y desconecta al bot del canal (restringido a moderadores con permisos de `Mute Members`).
 
 ---
 
@@ -56,8 +63,9 @@ Todos los usuarios pueden ver e intentar ejecutar los comandos, pero para que se
 El bot integra un servidor web Express para mostrar estadísticas en tiempo real y logs de auditoría.
 
 *   **Acceso local:** Abre tu navegador e ingresa a `http://localhost:3000`.
-*   **Acceso en tu VPS (Contabo):** Abre el puerto en tu firewall (`sudo ufw allow 3000/tcp`) e ingresa a `http://IP_DE_TU_VPS:3000`.
+*   **Acceso en tu VPS (Contabo/Coolify):** Abre el puerto en tu firewall (`sudo ufw allow 3000/tcp`) e ingresa a `http://IP_DE_TU_VPS:3000`.
 *   **Características:**
     *   Total de comandos ejecutados en el servidor.
-    *   Frecuencia de uso por comando y top de usuarios activos.
-    *   Historial de los últimos 20 logs de comandos (auto-actualizado cada 3 segundos).
+    *   Uso de comandos representado en un gráfico de dona (Doughnut Chart) interactivo (Chart.js).
+    *   Tabla superior con la **moderación de voz en vivo (sanciones activas)** mostrando avatares reales, servidores y cuentas regresivas segundo a segundo.
+    *   Historial de auditoría con los últimos 20 comandos.

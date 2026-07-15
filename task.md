@@ -1,0 +1,25 @@
+# Tareas para Inicializar el Bot de Discord en Node.js
+
+- `[x]` Crear la estructura de archivos de configuración inicial
+- `[x]` Crear el código base del bot
+- `[x]` Crear los manejadores de eventos (handlers)
+- `[x]` Crear comandos iniciales
+- `[x]` Instalar dependencias locales (`npm install`)
+- `[x]` Crear comando de moderación inicial `/mute` (Timeout)
+- `[x]` Modificar el sistema a Silencio de Voz en Servidor (Server Mute/Deafen)
+- `[x]` Desarrollar el comando de bloqueo de canales de voz `/voiceblock`
+- `[x]` Agregar mensajes de expiración automáticos (Notificaciones)
+- `[x]` Crear el sistema de retos de habilidad de 10 segundos
+- `[x]` Desarrollar el Dashboard Web del Bot (Express)
+- `[x]` Migración de persistencia a PostgreSQL (Coolify)
+- `[x]` Mejoras del Dashboard: Gráficos de Chart.js y Sanciones Activas
+- `[x]` Comando de Voz IA (/decir)
+- `[x]` Cola de Reproducción en Comando de Voz
+- `[x]` Robustez de Voz y Comando `/clearqueue`
+- `[x]` Modularización de Voz y Dos Comandos (/decir y /decir-ia)
+  - `[x]` Crear `src/utils/voiceQueueManager.js` para centralizar la cola de voz y reproducción
+  - `[x]` Reescribir `/decir` en `src/commands/utility/decir.js` (solo voz Google)
+  - `[x]` Crear `/decir-ia` en `src/commands/utility/deciria.js` (voces de IA)
+  - `[x]` Modificar `src/commands/utility/clearqueue.js` para usar el nuevo manager
+  - `[x]` Desplegar cambios locales y hacer commit final de Git
+- `[x]` Desplegar los cambios y verificar
