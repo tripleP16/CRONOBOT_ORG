@@ -17,10 +17,24 @@ function getOrCreateQueue(guildId) {
 	return guildQueues.get(guildId);
 }
 
+// Etiquetas visibles de las voces y las intensidades soportadas
+const VOICE_LABELS = {
+	xokas: 'El Xokas (IA)',
+	egirl: 'E-girl (IA)',
+	google: 'Google Translate',
+};
+
+const INTENSITY_LABELS = {
+	normal: 'Normal',
+	emocionado: 'Emocionado 🤩',
+	triste: 'Triste 😢',
+};
+
 /**
  * Añade un mensaje de voz a la cola del servidor y lo reproduce secuencialmente.
+ * @param {string} [intensity='normal'] - Intensidad del tono: 'normal', 'emocionado' o 'triste' (solo voces de IA).
  */
-async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction) {
+async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity = 'normal') {
 	const serverQueue = getOrCreateQueue(guildId);
 
 	// Añadimos el nuevo mensaje a la cola del servidor
@@ -28,16 +42,18 @@ async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, inter
 		text,
 		voiceChannel,
 		interaction,
-		voiceOption
+		voiceOption,
+		intensity
 	});
 
-	const voiceLabel = voiceOption === 'xokas' ? 'El Xokas (IA)' : 'Google Translate';
+	const voiceLabel = VOICE_LABELS[voiceOption] || VOICE_LABELS.google;
+	const intensityLabel = intensity !== 'normal' ? ` | Tono: *${INTENSITY_LABELS[intensity] || intensity}*` : '';
 
 	// Si ya está reproduciendo, respondemos con la posición en la cola
 	if (serverQueue.isPlaying) {
 		const position = serverQueue.queue.length;
 		await interaction.reply({
-			content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera (Voz: *${voiceLabel}*) para leer: *"${text}"*`,
+			content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera (Voz: *${voiceLabel}*${intensityLabel}) para leer: *"${text}"*`,
 			ephemeral: true
 		});
 		return;
@@ -45,7 +61,7 @@ async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, inter
 
 	// Si está libre, respondemos confirmando el inicio
 	await interaction.reply({
-		content: `🎙️ Conectando al canal para leer con la voz de **${voiceLabel}**: *"${text}"*...`,
+		content: `🎙️ Conectando al canal para leer con la voz de **${voiceLabel}**${intensityLabel}: *"${text}"*...`,
 		ephemeral: true
 	});
 
@@ -92,7 +108,7 @@ async function processQueue(guildId) {
 
 	try {
 		// Generamos el audio mediante el servicio TTS
-		const { streamOrUrl, voiceUsed } = await getAudioStream(current.text, current.voiceOption);
+		const { streamOrUrl, voiceUsed } = await getAudioStream(current.text, current.voiceOption, current.intensity);
 
 		// Conectamos al canal de voz de Discord
 		if (!serverQueue.connection || serverQueue.connection.joinConfig.channelId !== current.voiceChannel.id) {

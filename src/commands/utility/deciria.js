@@ -1,10 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { addMessageToQueue } = require('../../utils/voiceQueueManager');
+const { isFishVoiceAvailable } = require('../../utils/ttsService');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('decir-ia')
-		.setDescription('Conecta al bot a tu canal de voz actual y habla usando voz clonada por IA (El Xokas).')
+		.setDescription('Conecta al bot a tu canal de voz y habla usando voces clonadas por IA (El Xokas, E-girl).')
 		.addStringOption(option =>
 			option.setName('texto')
 				.setDescription('El texto que deseas que el bot diga (máximo 200 caracteres).')
@@ -12,22 +13,37 @@ module.exports = {
 				.setMaxLength(200))
 		.addStringOption(option =>
 			option.setName('voz')
-				.setDescription('Elige la voz del bot (El Xokas por defecto si la API Key está configurada).')
+				.setDescription('La voz de IA con la que hablará el bot (El Xokas por defecto).')
 				.setRequired(false)
 				.addChoices(
-					{ name: 'El Xokas (IA Clonada)', value: 'xokas' },
-					{ name: 'Google Translate (Clásica)', value: 'google' }
+					{ name: 'El Xokas (IA)', value: 'xokas' },
+					{ name: 'E-girl (IA)', value: 'egirl' }
+				))
+		.addStringOption(option =>
+			option.setName('intensidad')
+				.setDescription('El tono con el que hablará la voz de IA (Normal por defecto).')
+				.setRequired(false)
+				.addChoices(
+					{ name: 'Normal', value: 'normal' },
+					{ name: 'Emocionado', value: 'emocionado' },
+					{ name: 'Triste', value: 'triste' }
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
+		const voiceOption = interaction.options.getString('voz') || 'xokas';
+		const intensity = interaction.options.getString('intensidad') || 'normal';
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
 
-		// Determinamos la voz solicitada
-		const defaultVoice = process.env.FISH_AUDIO_API_KEY ? 'xokas' : 'google';
-		const voiceOption = interaction.options.getString('voz') || defaultVoice;
+		// 1. Validamos que las voces de IA estén configuradas en el servidor
+		if (!isFishVoiceAvailable()) {
+			return interaction.reply({
+				content: '❌ Las voces de IA no están configuradas (falta `FISH_AUDIO_API_KEY` en el servidor). Usa `/decir` para la voz clásica de Google.',
+				ephemeral: true,
+			});
+		}
 
-		// 1. Validamos que el usuario esté en un canal de voz
+		// 2. Validamos que el usuario esté en un canal de voz
 		if (!voiceChannel) {
 			return interaction.reply({
 				content: '❌ Debes estar conectado a un canal de voz en este servidor para usar este comando.',
@@ -35,7 +51,7 @@ module.exports = {
 			});
 		}
 
-		// 2. Validamos los permisos del bot para entrar y hablar
+		// 3. Validamos los permisos del bot para entrar y hablar
 		const permissions = voiceChannel.permissionsFor(interaction.client.user);
 		if (!permissions.has('Connect') || !permissions.has('Speak')) {
 			return interaction.reply({
@@ -44,7 +60,7 @@ module.exports = {
 			});
 		}
 
-		// Delegamos al gestor de colas de voz especificando la opción seleccionada
-		await addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction);
+		// Delegamos al gestor de colas de voz con la voz de IA y la intensidad seleccionadas
+		await addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity);
 	},
 };

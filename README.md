@@ -28,9 +28,10 @@ El bot cuenta con un sistema de retos matemáticos rápidos mediante botones que
    PORT=3000
    DATABASE_URL=postgresql://postgres:password@host:5432/cronobot?sslmode=disable
    
-   # Opcionales para voz IA (El Xokas)
+   # Opcionales para voces de IA (El Xokas, E-girl)
    FISH_AUDIO_API_KEY=tu_api_key_aqui
    FISH_AUDIO_XOKAS_MODEL_ID=8f23453397d14e4d9a579bad5aab41a8
+   FISH_AUDIO_EGIRL_MODEL_ID=03cfefd0ad67452c8d291d0ae4605273
    FISH_AUDIO_MODEL=s2.1-pro-free
    ```
 3. Registra los comandos de barra en la API de Discord:
@@ -50,8 +51,11 @@ El bot cuenta con un sistema de retos matemáticos rápidos mediante botones que
 *   **`/mute <usuario> <duracion_segundos> [razon]`:** Silencia y ensordece (Server Mute/Deafen) a un miembro en canales de voz por el tiempo seleccionado (máximo 60s, con reto de 10s).
 *   **`/voiceblock <usuario> <canal> <duracion_segundos> [razon]`:** Bloquea temporalmente a un usuario para que no pueda entrar a un canal de voz específico (máximo 60s, con reto de 10s).
 *   **`/creador`:** Muestra un embed estético con la información de contacto y tecnología del desarrollador (Diego Cumares / CRONOXT).
-*   **`/decir <texto> [voz]`:** Conecta al bot a tu canal de voz actual y lee el texto usando voz de IA en español.
-    *   *Opciones de voz:* **El Xokas (IA)** (por defecto si se configura la API Key) y **Google Translate** (clásica).
+*   **`/decir <texto>`:** Conecta al bot a tu canal de voz actual y lee el texto con la voz clásica de Google Translate en español.
+*   **`/decir-ia <texto> [voz] [intensidad]`:** Igual que `/decir`, pero con voces clonadas por IA vía [Fish Audio](https://fish.audio) (requiere `FISH_AUDIO_API_KEY`).
+    *   *Opciones de voz:* **El Xokas (IA)** (por defecto) y **E-girl (IA)**.
+    *   *Intensidades:* **Normal**, **Emocionado** y **Triste** (etiquetas de emoción + ajuste de velocidad).
+*   Ambos comandos comparten la misma cola de reproducción por servidor:
     *   *Cola de espera:* Si varios usuarios envían textos, el bot los lee en orden de llegada sin cortarse.
     *   *Inactividad:* Si la cola se vacía, se desconecta solo tras 10 segundos de inactividad.
 *   **`/clearqueue`:** Vaciá la cola de espera de mensajes de voz y desconecta al bot del canal (restringido a moderadores con permisos de `Mute Members`).

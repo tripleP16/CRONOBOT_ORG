@@ -96,9 +96,31 @@ function getGoogleTTSUrl(text) {
 	});
 }
 
+/**
+ * Punto de entrada único para el gestor de colas de voz: genera el audio para
+ * cualquier voz soportada, con respaldo automático a Google Translate si la
+ * voz de IA falla o no está configurada.
+ * @param {string} text - Texto a sintetizar.
+ * @param {string} voiceOption - Voz solicitada ('xokas', 'egirl' o 'google').
+ * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado' o 'triste' (solo voces de IA).
+ * @returns {Promise<{streamOrUrl: (import('node:stream').Readable|string), voiceUsed: string}>}
+ */
+async function getAudioStream(text, voiceOption, intensity = 'normal') {
+	if (isFishVoice(voiceOption) && isFishVoiceAvailable()) {
+		try {
+			const stream = await createFishStream(text, voiceOption, intensity);
+			return { streamOrUrl: stream, voiceUsed: voiceOption };
+		} catch (fishError) {
+			console.error('[ERROR] Fish Audio falló, usando voz de Google como respaldo:', fishError.message);
+		}
+	}
+	return { streamOrUrl: getGoogleTTSUrl(text), voiceUsed: 'google' };
+}
+
 module.exports = {
 	isFishVoiceAvailable,
 	isFishVoice,
 	createFishStream,
 	getGoogleTTSUrl,
+	getAudioStream,
 };
