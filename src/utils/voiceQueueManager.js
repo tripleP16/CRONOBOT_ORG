@@ -30,11 +30,12 @@ const INTENSITY_LABELS = {
 	normal: 'Normal',
 	emocionado: 'Emocionado 🤩',
 	triste: 'Triste 😢',
+	cabreado: 'Cabreado 🤬',
 };
 
 /**
  * Añade un mensaje de voz a la cola del servidor y lo reproduce secuencialmente.
- * @param {string} [intensity='normal'] - Intensidad del tono: 'normal', 'emocionado' o 'triste' (solo voces de IA).
+ * @param {string} [intensity='normal'] - Intensidad del tono: 'normal', 'emocionado', 'triste' o 'cabreado' (solo voces de IA).
  */
 async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity = 'normal') {
 	const serverQueue = getOrCreateQueue(guildId);

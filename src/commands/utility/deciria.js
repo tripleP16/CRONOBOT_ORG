@@ -28,7 +28,8 @@ module.exports = {
 				.addChoices(
 					{ name: 'Normal', value: 'normal' },
 					{ name: 'Emocionado', value: 'emocionado' },
-					{ name: 'Triste', value: 'triste' }
+					{ name: 'Triste', value: 'triste' },
+					{ name: 'Cabreado (gritando)', value: 'cabreado' }
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');

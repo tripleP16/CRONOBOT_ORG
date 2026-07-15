@@ -22,6 +22,8 @@ const INTENSITY_PRESETS = {
 	normal: { tag: '', speed: 1.0 },
 	emocionado: { tag: '[excited]', speed: 1.1 },
 	triste: { tag: '[sad]', speed: 0.9 },
+	// Emoción + marcador de entrega combinados: enfadado y a gritos
+	cabreado: { tag: '[angry][shouting]', speed: 1.1 },
 };
 
 /**
@@ -42,7 +44,7 @@ function isFishVoice(voice) {
  * Genera el audio TTS con una voz de IA usando la API de Fish Audio.
  * @param {string} text - Texto a sintetizar.
  * @param {string} voice - Nombre de la voz ('xokas', 'egirl', 'dalas' o 'chavez').
- * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado' o 'triste'.
+ * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste' o 'cabreado'.
  * Devuelve un stream de audio MP3 listo para pasar a createAudioResource.
  */
 async function createFishStream(text, voice, intensity = 'normal') {
@@ -106,7 +108,7 @@ function getGoogleTTSUrl(text) {
  * voz de IA falla o no está configurada.
  * @param {string} text - Texto a sintetizar.
  * @param {string} voiceOption - Voz solicitada ('xokas', 'egirl', 'dalas', 'chavez' o 'google').
- * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado' o 'triste' (solo voces de IA).
+ * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste' o 'cabreado' (solo voces de IA).
  * @returns {Promise<{streamOrUrl: (import('node:stream').Readable|string), voiceUsed: string}>}
  */
 async function getAudioStream(text, voiceOption, intensity = 'normal') {
