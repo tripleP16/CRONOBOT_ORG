@@ -18,6 +18,9 @@ module.exports = {
 				.addChoices(
 					{ name: 'El Xokas (IA)', value: 'xokas' },
 					{ name: 'E-girl (IA)', value: 'egirl' },
+					{ name: 'E-girl Coqueta (IA)', value: 'coqueta' },
+					{ name: 'E-girl Tifani ASMR (IA)', value: 'tifani' },
+					{ name: 'E-girl Seductora (IA)', value: 'seductora' },
 					{ name: 'Dalas Review (IA)', value: 'dalas' },
 					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
 				))
