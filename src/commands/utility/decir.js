@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType, VoiceConnectionStatus } = require('@discordjs/voice');
 const googleTTS = require('google-tts-api');
 
 // Mapa global para las colas de cada servidor (Key: guildId)
@@ -19,6 +19,8 @@ function getOrCreateQueue(guildId) {
 }
 
 module.exports = {
+	guildQueues,
+	processQueue,
 	data: new SlashCommandBuilder()
 		.setName('decir')
 		.setDescription('Conecta al bot a tu canal de voz actual y habla usando voz de IA (con cola de espera).')
@@ -133,6 +135,25 @@ async function processQueue(guildId) {
 				adapterCreator: current.voiceChannel.guild.voiceAdapterCreator,
 			});
 		}
+
+		// Escuchamos si la conexión es desconectada a la fuerza
+		serverQueue.connection.removeAllListeners(VoiceConnectionStatus.Disconnected);
+		serverQueue.connection.on(VoiceConnectionStatus.Disconnected, () => {
+			console.log(`[WARN] Conexión de voz desconectada en servidor ${guildId}.`);
+			
+			// Esperamos 1 segundo para verificar si es una desconexión permanente (ej: expulsión por un usuario)
+			setTimeout(() => {
+				const status = serverQueue.connection?.state?.status;
+				if (serverQueue.isPlaying && (!serverQueue.connection || status === VoiceConnectionStatus.Destroyed || status === VoiceConnectionStatus.Disconnected)) {
+					console.log(`[INFO] Detectada expulsión del canal de voz. Limpiando conexión y continuando con el siguiente en cola.`);
+					try { serverQueue.connection?.destroy(); } catch (e) {}
+					serverQueue.connection = null;
+					serverQueue.player = null;
+					// Continuamos procesando la cola
+					processQueue(guildId);
+				}
+			}, 1000);
+		});
 
 		// Creamos el reproductor si no existe
 		if (!serverQueue.player) {
