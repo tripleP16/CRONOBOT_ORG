@@ -40,6 +40,12 @@ async function initDatabase() {
 		`);
 		console.log('[INFO] Tabla "command_logs" verificada/creada.');
 
+		// Crear índices para optimizar las consultas de estadísticas del Dashboard
+		await query(`CREATE INDEX IF NOT EXISTS idx_command_logs_command_name ON command_logs(command_name)`);
+		await query(`CREATE INDEX IF NOT EXISTS idx_command_logs_username ON command_logs(username)`);
+		await query(`CREATE INDEX IF NOT EXISTS idx_command_logs_timestamp ON command_logs(timestamp DESC)`);
+		console.log('[INFO] Índices para "command_logs" verificados/creados.');
+
 		// 2. Tabla de Silencios de Voz Activos (Mutes)
 		await query(`
 			CREATE TABLE IF NOT EXISTS voice_mutes (
