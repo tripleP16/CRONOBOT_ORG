@@ -3,72 +3,124 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>CRONOBOT - Dashboard de Control</title>
+	<title>CRONOBOT - Panel de Control</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<!-- ORBES DE FONDO DECORATIVOS -->
+	<!-- MESH GRADIENT BACKDROP -->
 	<div class="bg-orbs-container">
 		<div class="bg-orb orb-1"></div>
 		<div class="bg-orb orb-2"></div>
+		<div class="bg-orb orb-3"></div>
 	</div>
 
-	<div class="app-container">
-		<!-- HEADER -->
-		<header class="app-header">
-			<div class="header-logo">
+	<!-- APP CONTENT -->
+	<div class="app-layout">
+		<!-- SIDEBAR (BARRA LATERAL) -->
+		<aside class="app-sidebar">
+			<div class="sidebar-header">
 				<span class="logo-icon">🤖</span>
-				<h1>CRONOBOT <span class="badge-active">Dashboard</span></h1>
+				<div class="logo-text">
+					<h2>CRONOBOT</h2>
+					<span class="badge-version">v1.2.0</span>
+				</div>
 			</div>
-			<div class="header-status">
-				<span class="status-indicator"></span>
-				<span class="status-text">Bot En Línea</span>
-			</div>
-		</header>
 
-		<!-- MAIN DASHBOARD -->
-		<main class="app-main">
-			<!-- TOP CARDS -->
-			<section class="stats-overview">
-				<div class="stat-card">
-					<div class="card-icon">⚡</div>
-					<div class="card-info">
-						<h3>Total Ejecuciones</h3>
-						<p id="total-commands">0</p>
-					</div>
+			<!-- BOT STATS IN SIDEBAR -->
+			<div class="bot-info-card">
+				<div class="status-wrapper">
+					<span class="status-indicator"></span>
+					<span class="status-text">Bot Activo</span>
 				</div>
-				<div class="stat-card">
-					<div class="card-icon">📊</div>
-					<div class="card-info">
-						<h3>Comandos Activos</h3>
-						<p id="active-commands-count">3</p>
-					</div>
+				<div class="info-details">
+					<p>Plataforma: <strong>Contabo VPS</strong></p>
+					<p>Motor: <strong>Node.js v24</strong></p>
 				</div>
+			</div>
+
+			<!-- INTERACTIVE NAVIGATION -->
+			<nav class="sidebar-nav">
+				<a href="#" class="nav-item active">
+					<span class="nav-icon">📊</span> Dashboard
+				</a>
+				<a href="https://github.com/CRONOXT/CRONOBOT_ORG" target="_blank" class="nav-item">
+					<span class="nav-icon">🐙</span> GitHub Repo
+				</a>
+				<a href="https://discord.com/developers/applications" target="_blank" class="nav-item">
+					<span class="nav-icon">🛠️</span> Dev Portal
+				</a>
+			</nav>
+
+			<!-- THEME TOGGLE SWITCH -->
+			<div class="sidebar-footer">
+				<span class="footer-label">Alternar Tema</span>
+				<button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+					<span class="toggle-icon sun">☀️ Light</span>
+					<span class="toggle-icon moon">🌙 Dark</span>
+				</button>
+			</div>
+		</aside>
+
+		<!-- MAIN CONTAINER -->
+		<div class="main-content">
+			<!-- TOP BAR -->
+			<header class="top-bar">
+				<div class="top-bar-title">
+					<h1>Panel de Estadísticas y Logs</h1>
+					<p>Monitoreo interactivo del bot en tiempo real</p>
+				</div>
+				<span class="live-pulse">
+					<span class="pulse-dot"></span>
+					EN VIVO
+				</span>
+			</header>
+
+			<!-- STATS CARDS -->
+			<section class="stats-grid">
 				<div class="stat-card">
-					<div class="card-icon">👥</div>
-					<div class="card-info">
-						<h3>Servidores Activos</h3>
-						<p id="servers-count">1</p>
+					<div class="card-glow"></div>
+					<div class="stat-card-header">
+						<span class="stat-icon">⚡</span>
+						<span class="stat-label">Ejecuciones Totales</span>
 					</div>
+					<p class="stat-value" id="total-commands">0</p>
+				</div>
+				
+				<div class="stat-card">
+					<div class="card-glow"></div>
+					<div class="stat-card-header">
+						<span class="stat-icon">🎙️</span>
+						<span class="stat-label">Comandos Disponibles</span>
+					</div>
+					<p class="stat-value">4</p>
+				</div>
+
+				<div class="stat-card">
+					<div class="card-glow"></div>
+					<div class="stat-card-header">
+						<span class="stat-icon">🏡</span>
+						<span class="stat-label">Servidores en Cache</span>
+					</div>
+					<p class="stat-value" id="servers-count">1</p>
 				</div>
 			</section>
 
-			<!-- DATA GRID -->
-			<div class="dashboard-grid">
-				<!-- SECCIÓN IZQUIERDA: ESTADÍSTICAS -->
-				<div class="grid-column">
-					<!-- COMANDOS MÁS USADOS -->
-					<div class="data-box">
-						<h2>📈 Comandos Más Usados</h2>
-						<div class="table-container">
+			<!-- DATA SECTIONS -->
+			<div class="sections-grid">
+				<!-- LEFT: STATS & CHARTS -->
+				<div class="data-column">
+					<!-- COMMANDS USAGE -->
+					<div class="glass-panel">
+						<h2>📈 Popularidad de Comandos</h2>
+						<div class="table-wrapper">
 							<table id="commands-table">
 								<thead>
 									<tr>
 										<th>Comando</th>
-										<th>Ejecuciones</th>
+										<th>Uso / Barra Proporcional</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -78,15 +130,15 @@
 						</div>
 					</div>
 
-					<!-- TOP USUARIOS -->
-					<div class="data-box">
-						<h2>🏆 Top Usuarios Activos</h2>
-						<div class="table-container">
+					<!-- TOP USERS -->
+					<div class="glass-panel">
+						<h2>🏆 Top Usuarios Más Activos</h2>
+						<div class="table-wrapper">
 							<table id="users-table">
 								<thead>
 									<tr>
 										<th>Usuario</th>
-										<th>Comandos</th>
+										<th>Uso del Bot</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -97,20 +149,17 @@
 					</div>
 				</div>
 
-				<!-- SECCIÓN DERECHA: LOGS RECIENTES -->
-				<div class="grid-column">
-					<div class="data-box logs-box">
-						<div class="box-header">
-							<h2>📜 Historial de Ejecuciones Recientes</h2>
-							<span class="live-indicator">LIVE</span>
-						</div>
-						<div class="logs-container">
+				<!-- RIGHT: RECENT LOGS -->
+				<div class="data-column">
+					<div class="glass-panel logs-panel">
+						<h2>📜 Historial Reciente de Auditoría</h2>
+						<div class="logs-scroll-wrapper">
 							<table id="logs-table">
 								<thead>
 									<tr>
 										<th>Hora</th>
 										<th>Usuario</th>
-										<th>Comando</th>
+										<th>Acción</th>
 										<th>Servidor</th>
 									</tr>
 								</thead>
@@ -122,12 +171,7 @@
 					</div>
 				</div>
 			</div>
-		</main>
-
-		<!-- FOOTER -->
-		<footer class="app-footer">
-			<p>© 2026 CRONOBOT. Diseñado por Diego Cumares (CRONOXT).</p>
-		</footer>
+		</div>
 	</div>
 
 	<script src="app.js"></script>

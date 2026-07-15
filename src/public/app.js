@@ -1,4 +1,29 @@
-// Función para realizar fetch de las estadísticas y actualizar la UI
+// ==========================================================================
+// CONTROL DE CAMBIO DE TEMA CLARO / OSCURO (THEME SWITCHER)
+// ==========================================================================
+const themeToggleBtn = document.getElementById('theme-toggle');
+
+// Cargar la preferencia guardada en localStorage
+const currentTheme = localStorage.getItem('theme');
+if (currentTheme === 'light') {
+	document.body.classList.add('light-theme');
+}
+
+// Escuchador de clic para alternar el tema
+themeToggleBtn.addEventListener('click', () => {
+	document.body.classList.toggle('light-theme');
+	
+	// Guardar la elección del usuario
+	const theme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+	localStorage.setItem('theme', theme);
+});
+
+
+// ==========================================================================
+// CONSUMO DE LA API Y ACTUALIZACIÓN DE DATOS (DASHBOARD REALTIME)
+// ==========================================================================
+
+// Realiza la petición de datos periódicamente
 async function fetchStats() {
 	try {
 		const response = await fetch('/api/stats');
@@ -8,39 +33,44 @@ async function fetchStats() {
 		updateDashboard(data);
 	} catch (error) {
 		console.error('[DASHBOARD ERROR]', error);
-		// Actualizar el estado a Desconectado en el header si falla la API
-		document.querySelector('.status-indicator').style.backgroundColor = '#ef4444';
-		document.querySelector('.status-indicator').style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)';
-		document.querySelector('.status-text').textContent = 'Error de API';
-		document.querySelector('.status-text').style.color = '#ef4444';
-		document.querySelector('.header-status').style.borderColor = 'rgba(239, 68, 68, 0.2)';
-		document.querySelector('.header-status').style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+		
+		// Indicador de error visual en el sidebar
+		const indicator = document.querySelector('.status-indicator');
+		const statusText = document.querySelector('.status-text');
+		if (indicator && statusText) {
+			indicator.style.backgroundColor = '#ef4444';
+			indicator.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)';
+			statusText.textContent = 'Error API';
+			statusText.style.color = '#ef4444';
+		}
 	}
 }
 
-// Función principal para poblar los elementos del DOM con los datos recibidos
+// Actualiza el contenido HTML con los datos de la API
 function updateDashboard(data) {
-	// Restaurar estado a Conectado en el header
-	document.querySelector('.status-indicator').style.backgroundColor = '#10b981';
-	document.querySelector('.status-indicator').style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
-	document.querySelector('.status-text').textContent = 'Bot En Línea';
-	document.querySelector('.status-text').style.color = '#10b981';
-	document.querySelector('.header-status').style.borderColor = 'rgba(16, 185, 129, 0.2)';
-	document.querySelector('.header-status').style.backgroundColor = 'rgba(16, 185, 129, 0.08)';
+	// Restaurar estado a Conectado en el sidebar
+	const indicator = document.querySelector('.status-indicator');
+	const statusText = document.querySelector('.status-text');
+	if (indicator && statusText) {
+		indicator.style.backgroundColor = '#10b981';
+		indicator.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
+		statusText.textContent = 'Bot Activo';
+		statusText.style.color = '#10b981';
+	}
 
-	// 1. Tarjetas Superiores
+	// 1. Contadores y tarjetas superiores
 	document.getElementById('total-commands').textContent = data.totalExecutions;
 
-	// Obtenemos los servidores únicos de los logs
+	// Servidores en caché
 	const uniqueGuilds = new Set(data.recentLogs.map(log => log.guildId).filter(id => id && id !== 'Mensaje Privado'));
 	document.getElementById('servers-count').textContent = Math.max(1, uniqueGuilds.size);
 
-	// 2. Tabla de Comandos Más Usados (con barra de progreso visual)
+	// 2. Comandos Más Usados
 	const commandsTableBody = document.querySelector('#commands-table tbody');
 	commandsTableBody.innerHTML = '';
 	
 	if (data.commandStats.length === 0) {
-		commandsTableBody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ningún comando ejecutado todavía</td></tr>';
+		commandsTableBody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-secondary);">Ningún comando registrado todavía</td></tr>';
 	} else {
 		// Buscamos el conteo máximo de ejecuciones para calcular proporciones
 		const maxCount = Math.max(...data.commandStats.map(s => s.count));
@@ -52,7 +82,7 @@ function updateDashboard(data) {
 				<td><span class="cmd-badge ${getCmdBadgeClass(stat.name)}">/${stat.name}</span></td>
 				<td>
 					<div class="cmd-cell">
-						<span style="font-weight: 600;">${stat.count}</span>
+						<span style="font-weight: 700; min-width: 20px;">${stat.count}</span>
 						<div class="progress-container">
 							<div class="progress-bar" style="width: ${percentage}%;"></div>
 						</div>
@@ -63,7 +93,7 @@ function updateDashboard(data) {
 		});
 	}
 
-	// 3. Tabla de Top Usuarios
+	// 3. Top Usuarios Activos
 	const usersTableBody = document.querySelector('#users-table tbody');
 	usersTableBody.innerHTML = '';
 
@@ -74,13 +104,13 @@ function updateDashboard(data) {
 			const tr = document.createElement('tr');
 			tr.innerHTML = `
 				<td>👤 ${user.username}</td>
-				<td style="font-weight: 600;">${user.count}</td>
+				<td style="font-weight: 700; text-align: right;">${user.count}</td>
 			`;
 			usersTableBody.appendChild(tr);
 		});
 	}
 
-	// 4. Tabla de Logs de Ejecuciones Recientes
+	// 4. Logs Recientes de Auditoría
 	const logsTableBody = document.querySelector('#logs-table tbody');
 	logsTableBody.innerHTML = '';
 
