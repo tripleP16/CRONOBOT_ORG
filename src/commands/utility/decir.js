@@ -1,6 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType, VoiceConnectionStatus } = require('@discordjs/voice');
-const googleTTS = require('google-tts-api');
+const { isXokasVoiceAvailable, createXokasStream, getGoogleTTSUrl } = require('../../utils/ttsService');
+
+const VOICE_LABELS = {
+	xokas: 'El Xokas 🔥',
+	google: 'Google (clásica)',
+};
 
 // Mapa global para las colas de cada servidor (Key: guildId)
 const guildQueues = new Map();
@@ -28,11 +33,28 @@ module.exports = {
 			option.setName('texto')
 				.setDescription('El texto que deseas que el bot diga (máximo 200 caracteres).')
 				.setRequired(true)
-				.setMaxLength(200)),
+				.setMaxLength(200))
+		.addStringOption(option =>
+			option.setName('voz')
+				.setDescription('La voz con la que hablará el bot (por defecto: El Xokas si está configurada).')
+				.setRequired(false)
+				.addChoices(
+					{ name: 'El Xokas (IA)', value: 'xokas' },
+					{ name: 'Google (clásica)', value: 'google' },
+				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
+		const requestedVoice = interaction.options.getString('voz');
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
+
+		// Determinamos la voz: El Xokas por defecto si hay API key de Fish Audio configurada
+		let voice = requestedVoice || (isXokasVoiceAvailable() ? 'xokas' : 'google');
+		let voiceWarning = '';
+		if (voice === 'xokas' && !isXokasVoiceAvailable()) {
+			voice = 'google';
+			voiceWarning = '\n⚠️ La voz del Xokas no está configurada (falta `FISH_AUDIO_API_KEY`), usando la voz clásica.';
+		}
 
 		// 1. Validamos que el usuario esté en un canal de voz
 		if (!voiceChannel) {
@@ -56,6 +78,7 @@ module.exports = {
 		// Añadimos el nuevo mensaje a la cola
 		serverQueue.queue.push({
 			text,
+			voice,
 			voiceChannel,
 			interaction
 		});
@@ -64,14 +87,14 @@ module.exports = {
 		if (serverQueue.isPlaying) {
 			const position = serverQueue.queue.length;
 			return interaction.reply({
-				content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera para leer: *"${text}"*`,
+				content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera para leer con voz de **${VOICE_LABELS[voice]}**: *"${text}"*${voiceWarning}`,
 				ephemeral: true
 			});
 		}
 
 		// Si está libre, respondemos que iniciará y comenzamos a procesar
 		await interaction.reply({
-			content: `🎙️ Conectando al canal para leer: *"${text}"*...`,
+			content: `🎙️ Conectando al canal para leer con voz de **${VOICE_LABELS[voice]}**: *"${text}"*...${voiceWarning}`,
 			ephemeral: true
 		});
 
@@ -115,13 +138,18 @@ async function processQueue(guildId) {
 	const current = serverQueue.queue.shift();
 
 	try {
-		// Generamos la URL del audio TTS usando Google Translate
-		const url = googleTTS.getAudioUrl(current.text, {
-			lang: 'es',
-			slow: false,
-			host: 'https://translate.google.com',
-			timeout: 10000,
-		});
+		// Generamos el audio TTS según la voz seleccionada
+		let audioSource;
+		if (current.voice === 'xokas' && isXokasVoiceAvailable()) {
+			try {
+				audioSource = await createXokasStream(current.text);
+			} catch (fishError) {
+				console.error(`[ERROR] Fish Audio falló (Server ${guildId}), usando voz de Google como respaldo:`, fishError.message);
+			}
+		}
+		if (!audioSource) {
+			audioSource = getGoogleTTSUrl(current.text);
+		}
 
 		// Conectamos al canal de voz de Discord
 		if (!serverQueue.connection || serverQueue.connection.joinConfig.channelId !== current.voiceChannel.id) {
@@ -161,7 +189,7 @@ async function processQueue(guildId) {
 			serverQueue.connection.subscribe(serverQueue.player);
 		}
 
-		const resource = createAudioResource(url, { inputType: StreamType.Arbitrary });
+		const resource = createAudioResource(audioSource, { inputType: StreamType.Arbitrary });
 		serverQueue.player.play(resource);
 
 		// Al terminar de reproducir el audio actual, pasamos al siguiente
