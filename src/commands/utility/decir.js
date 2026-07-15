@@ -1,10 +1,17 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType, VoiceConnectionStatus } = require('@discordjs/voice');
-const { isXokasVoiceAvailable, createXokasStream, getGoogleTTSUrl } = require('../../utils/ttsService');
+const { isFishVoiceAvailable, isFishVoice, createFishStream, getGoogleTTSUrl } = require('../../utils/ttsService');
 
 const VOICE_LABELS = {
 	xokas: 'El Xokas 🔥',
+	egirl: 'E-girl 💕',
 	google: 'Google (clásica)',
+};
+
+const INTENSITY_LABELS = {
+	normal: 'Normal',
+	emocionado: 'Emocionado 🤩',
+	triste: 'Triste 😢',
 };
 
 // Mapa global para las colas de cada servidor (Key: guildId)
@@ -40,20 +47,34 @@ module.exports = {
 				.setRequired(false)
 				.addChoices(
 					{ name: 'El Xokas (IA)', value: 'xokas' },
+					{ name: 'E-girl (IA)', value: 'egirl' },
 					{ name: 'Google (clásica)', value: 'google' },
+				))
+		.addStringOption(option =>
+			option.setName('intensidad')
+				.setDescription('El tono con el que hablará la voz (solo aplica a las voces de IA).')
+				.setRequired(false)
+				.addChoices(
+					{ name: 'Normal', value: 'normal' },
+					{ name: 'Emocionado', value: 'emocionado' },
+					{ name: 'Triste', value: 'triste' },
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
 		const requestedVoice = interaction.options.getString('voz');
+		const intensity = interaction.options.getString('intensidad') || 'normal';
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
 
 		// Determinamos la voz: El Xokas por defecto si hay API key de Fish Audio configurada
-		let voice = requestedVoice || (isXokasVoiceAvailable() ? 'xokas' : 'google');
+		let voice = requestedVoice || (isFishVoiceAvailable() ? 'xokas' : 'google');
 		let voiceWarning = '';
-		if (voice === 'xokas' && !isXokasVoiceAvailable()) {
+		if (isFishVoice(voice) && !isFishVoiceAvailable()) {
 			voice = 'google';
-			voiceWarning = '\n⚠️ La voz del Xokas no está configurada (falta `FISH_AUDIO_API_KEY`), usando la voz clásica.';
+			voiceWarning = '\n⚠️ Las voces de IA no están configuradas (falta `FISH_AUDIO_API_KEY`), usando la voz clásica.';
+		}
+		if (voice === 'google' && intensity !== 'normal') {
+			voiceWarning += '\nℹ️ La intensidad solo aplica a las voces de IA, la voz clásica la ignorará.';
 		}
 
 		// 1. Validamos que el usuario esté en un canal de voz
@@ -79,22 +100,28 @@ module.exports = {
 		serverQueue.queue.push({
 			text,
 			voice,
+			intensity,
 			voiceChannel,
 			interaction
 		});
+
+		// Etiqueta de tono para las respuestas (solo si no es el tono normal)
+		const intensityLabel = intensity !== 'normal' && isFishVoice(voice)
+			? ` (tono: **${INTENSITY_LABELS[intensity]}**)`
+			: '';
 
 		// Si ya está reproduciendo, respondemos con la posición en la cola
 		if (serverQueue.isPlaying) {
 			const position = serverQueue.queue.length;
 			return interaction.reply({
-				content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera para leer con voz de **${VOICE_LABELS[voice]}**: *"${text}"*${voiceWarning}`,
+				content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera para leer con voz de **${VOICE_LABELS[voice]}**${intensityLabel}: *"${text}"*${voiceWarning}`,
 				ephemeral: true
 			});
 		}
 
 		// Si está libre, respondemos que iniciará y comenzamos a procesar
 		await interaction.reply({
-			content: `🎙️ Conectando al canal para leer con voz de **${VOICE_LABELS[voice]}**: *"${text}"*...${voiceWarning}`,
+			content: `🎙️ Conectando al canal para leer con voz de **${VOICE_LABELS[voice]}**${intensityLabel}: *"${text}"*...${voiceWarning}`,
 			ephemeral: true
 		});
 
@@ -138,11 +165,11 @@ async function processQueue(guildId) {
 	const current = serverQueue.queue.shift();
 
 	try {
-		// Generamos el audio TTS según la voz seleccionada
+		// Generamos el audio TTS según la voz e intensidad seleccionadas
 		let audioSource;
-		if (current.voice === 'xokas' && isXokasVoiceAvailable()) {
+		if (isFishVoice(current.voice) && isFishVoiceAvailable()) {
 			try {
-				audioSource = await createXokasStream(current.text);
+				audioSource = await createFishStream(current.text, current.voice, current.intensity);
 			} catch (fishError) {
 				console.error(`[ERROR] Fish Audio falló (Server ${guildId}), usando voz de Google como respaldo:`, fishError.message);
 			}

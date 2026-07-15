@@ -45,7 +45,7 @@ Todos los usuarios pueden ver e intentar ejecutar los comandos, pero para que se
 *   **`/ping`:** Mide la latencia de respuesta del bot y la API de Discord.
 *   **`/mute <usuario> <duracion_segundos> [razon]`:** Silencia y ensordece (Server Mute/Deafen) a un miembro en canales de voz por el tiempo seleccionado (máximo 60s). Al expirar, le devuelve la voz de forma automática.
 *   **`/voiceblock <usuario> <canal> <duracion_segundos> [razon]`:** Bloquea temporalmente a un usuario para que no pueda entrar a un canal de voz específico (máximo 60s). Si intenta unirse, el bot lo desconectará de inmediato.
-*   **`/decir <texto> [voz]`:** Conecta el bot a tu canal de voz y lee el texto con TTS (cola de espera por servidor). Soporta la voz clonada por IA de **El Xokas** (vía [Fish Audio](https://fish.audio), requiere `FISH_AUDIO_API_KEY` en el `.env`) o la voz clásica de Google Translate como respaldo.
+*   **`/decir <texto> [voz] [intensidad]`:** Conecta el bot a tu canal de voz y lee el texto con TTS (cola de espera por servidor). Soporta voces clonadas por IA — **El Xokas** y **E-girl** — con intensidades **normal**, **emocionado** o **triste** (vía [Fish Audio](https://fish.audio), requiere `FISH_AUDIO_API_KEY` en el `.env`), o la voz clásica de Google Translate como respaldo.
 *   **`/clearqueue`:** Vacía la cola de mensajes TTS pendientes del servidor.
 *   **`/creador`:** Muestra un embed estético con la información de contacto y tecnología del desarrollador (Diego Cumares / CRONOXT).
 
