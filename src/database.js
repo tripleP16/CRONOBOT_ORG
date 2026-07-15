@@ -40,6 +40,9 @@ async function initDatabase() {
 		`);
 		console.log('[INFO] Tabla "command_logs" verificada/creada.');
 
+		// Añadir columna 'details' para registrar opciones adicionales de comandos (como la voz TTS usada)
+		await query(`ALTER TABLE command_logs ADD COLUMN IF NOT EXISTS details VARCHAR(100)`);
+
 		// Crear índices para optimizar las consultas de estadísticas del Dashboard
 		await query(`CREATE INDEX IF NOT EXISTS idx_command_logs_command_name ON command_logs(command_name)`);
 		await query(`CREATE INDEX IF NOT EXISTS idx_command_logs_username ON command_logs(username)`);

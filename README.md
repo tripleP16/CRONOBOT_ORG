@@ -14,7 +14,7 @@ El bot destaca por incorporar un **Dashboard Web en tiempo real** (Express) que 
 *   **Dashboard Web Premium (SaaS Layout):**
     *   **Dashboard interactivo** con selector de tema claro/oscuro persistente (guardado en `localStorage`).
     *   **Moderación en Vivo:** Visualización de sanciones activas de voz con nombres de usuario resueltos por la API de Discord, fotos de perfil (avatares) y temporizadores dinámicos de cuenta regresiva en segundos reales.
-    *   **Analíticas:** Gráfico de dona interactivo (Chart.js) que representa el volumen y popularidad de comandos ejecutados.
+    *   **Analíticas:** Gráfico de dona interactivo (Chart.js) que representa el volumen y popularidad de comandos ejecutados, además de una tarjeta de métrica superior con la **Voz Favorita** y un panel de desglose proporcional de uso de voces (porcentaje y conteo).
     *   **Auditoría:** Historial reciente de los últimos 20 comandos almacenados de forma permanente en PostgreSQL.
 
 ---

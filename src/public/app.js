@@ -181,10 +181,50 @@ function updateDashboardStats(data) {
 	const uniqueGuilds = new Set(data.recentLogs.map(log => log.guildId).filter(id => id && id !== 'Mensaje Privado'));
 	document.getElementById('servers-count').textContent = Math.max(1, uniqueGuilds.size);
 
-	// 2. Renderizar Gráfico de Donas
+	// 2. Desglose de Voces e Indicador Superior
+	const voiceContainer = document.getElementById('voice-stats-container');
+	if (voiceContainer) {
+		voiceContainer.innerHTML = '';
+		if (!data.voiceStats || data.voiceStats.length === 0) {
+			voiceContainer.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; padding: 5px;">No se han ejecutado comandos de voz todavía.</div>';
+			document.getElementById('top-voice').textContent = 'Ninguna (0)';
+		} else {
+			// Seteamos la voz favorita en la tarjeta métrica
+			const topVoice = data.voiceStats[0];
+			document.getElementById('top-voice').innerHTML = `${topVoice.voice} <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: normal;">(${topVoice.count})</span>`;
+
+			// Calculamos el total de ejecuciones de voz para porcentaje
+			const totalVoiceUses = data.voiceStats.reduce((sum, item) => sum + item.count, 0);
+
+			data.voiceStats.forEach(item => {
+				const pct = totalVoiceUses > 0 ? Math.round((item.count / totalVoiceUses) * 100) : 0;
+				// Color de acento según la voz
+				const isXokas = item.voice.includes('Xokas');
+				const barColor = isXokas ? 'var(--accent-color)' : 'var(--text-secondary)';
+				const icon = isXokas ? '🎙️' : '🗣️';
+
+				const barHtml = `
+					<div style="font-size: 0.82rem; display: flex; flex-direction: column; gap: 4px;">
+						<div style="display: flex; justify-content: space-between; font-weight: 500;">
+							<span>${icon} ${item.voice}</span>
+							<span>${item.count} usos (${pct}%)</span>
+						</div>
+						<div style="background-color: var(--progress-bg); height: 6px; border-radius: 4px; overflow: hidden; width: 100%;">
+							<div style="background-color: ${barColor}; width: ${pct}%; height: 100%; border-radius: 4px; transition: width 0.6s ease;"></div>
+						</div>
+					</div>
+				`;
+				const wrapper = document.createElement('div');
+				wrapper.innerHTML = barHtml;
+				voiceContainer.appendChild(wrapper.firstElementChild);
+			});
+		}
+	}
+
+	// 3. Renderizar Gráfico de Donas
 	renderChart(data.commandStats);
 
-	// 3. Tabla de Top Usuarios
+	// 4. Tabla de Top Usuarios
 	const usersTableBody = document.querySelector('#users-table tbody');
 	usersTableBody.innerHTML = '';
 
@@ -201,7 +241,7 @@ function updateDashboardStats(data) {
 		});
 	}
 
-	// 4. Logs Recientes de Auditoría
+	// 5. Logs Recientes de Auditoría
 	const logsTableBody = document.querySelector('#logs-table tbody');
 	logsTableBody.innerHTML = '';
 

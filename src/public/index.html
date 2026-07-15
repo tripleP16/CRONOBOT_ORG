@@ -108,6 +108,15 @@
 					</div>
 					<p class="stat-value" id="servers-count">1</p>
 				</div>
+
+				<div class="stat-card">
+					<div class="card-glow"></div>
+					<div class="stat-card-header">
+						<span class="stat-icon">🗣️</span>
+						<span class="stat-label">Voz Favorita</span>
+					</div>
+					<p class="stat-value" id="top-voice" style="font-size: 1.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 8px;">Ninguna</p>
+				</div>
 			</section>
 
 			<!-- SANCIONES ACTIVAS EN TIEMPO REAL -->
@@ -139,6 +148,13 @@
 						<h2>📊 Uso de Comandos</h2>
 						<div class="chart-wrapper">
 							<canvas id="commandsChart"></canvas>
+						</div>
+						<!-- Desglose de Voces IA -->
+						<div class="voice-stats-desglose" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+							<h3 style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">🗣️ Desglose de Voces</h3>
+							<div id="voice-stats-container" style="display: flex; flex-direction: column; gap: 10px;">
+								<!-- Dinámico -->
+							</div>
 						</div>
 					</div>
 
