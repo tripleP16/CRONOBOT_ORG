@@ -21,6 +21,9 @@ function getOrCreateQueue(guildId) {
 const VOICE_LABELS = {
 	xokas: 'El Xokas (IA)',
 	egirl: 'E-girl (IA)',
+	coqueta: 'E-girl Coqueta (IA)',
+	tifani: 'E-girl Tifani ASMR (IA)',
+	seductora: 'E-girl Seductora (IA)',
 	dalas: 'Dalas Review (IA)',
 	chavez: 'Hugo Chávez (IA)',
 	google: 'Google Translate',

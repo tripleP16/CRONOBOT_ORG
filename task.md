@@ -27,3 +27,4 @@
 - `[x]` Reintegrar intensidades (Normal/Emocionado/Triste) y voz E-girl en `/decir-ia`
 - `[x]` Agregar voces de IA de Dalas Review y Hugo Chávez en `/decir-ia`
 - `[x]` Agregar intensidad "Cabreado" (gritando) en `/decir-ia`
+- `[x]` Agregar tres voces E-girl adicionales (Coqueta, Tifani ASMR y Seductora) en `/decir-ia`

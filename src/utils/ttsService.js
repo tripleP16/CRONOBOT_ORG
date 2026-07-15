@@ -10,6 +10,12 @@ const FISH_VOICE_MODELS = {
 	xokas: () => process.env.FISH_AUDIO_XOKAS_MODEL_ID || '8f23453397d14e4d9a579bad5aab41a8',
 	// Voz femenina "e-girl" en español (modelo comunitario "Chica Sexy LMO")
 	egirl: () => process.env.FISH_AUDIO_EGIRL_MODEL_ID || '03cfefd0ad67452c8d291d0ae4605273',
+	// E-girl coqueta y expresiva (modelo comunitario "voz chica sexy")
+	coqueta: () => process.env.FISH_AUDIO_COQUETA_MODEL_ID || 'e1f3701f614040539f531c7c1c7ed0fb',
+	// E-girl susurrante estilo ASMR (modelo comunitario "tifani sexy")
+	tifani: () => process.env.FISH_AUDIO_TIFANI_MODEL_ID || '6e7e70b4befd4df4b2314069b2ee92ec',
+	// E-girl de tono suave e íntimo (modelo comunitario "Seductora")
+	seductora: () => process.env.FISH_AUDIO_SEDUCTORA_MODEL_ID || '5f7d136576e8467ca911b66f2ae16ac7',
 	// Voz clonada de Dalas Review (modelo comunitario "Dalas Review")
 	dalas: () => process.env.FISH_AUDIO_DALAS_MODEL_ID || '7b1f244402da4b04889bf7e7830c8af5',
 	// Voz clonada de Hugo Chávez (modelo comunitario "Hugo Chavez (ExPresidente de Venezuela)")
@@ -43,7 +49,7 @@ function isFishVoice(voice) {
 /**
  * Genera el audio TTS con una voz de IA usando la API de Fish Audio.
  * @param {string} text - Texto a sintetizar.
- * @param {string} voice - Nombre de la voz ('xokas', 'egirl', 'dalas' o 'chavez').
+ * @param {string} voice - Nombre de la voz (cualquier clave de FISH_VOICE_MODELS).
  * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste' o 'cabreado'.
  * Devuelve un stream de audio MP3 listo para pasar a createAudioResource.
  */
@@ -107,7 +113,7 @@ function getGoogleTTSUrl(text) {
  * cualquier voz soportada, con respaldo automático a Google Translate si la
  * voz de IA falla o no está configurada.
  * @param {string} text - Texto a sintetizar.
- * @param {string} voiceOption - Voz solicitada ('xokas', 'egirl', 'dalas', 'chavez' o 'google').
+ * @param {string} voiceOption - Voz solicitada (clave de FISH_VOICE_MODELS o 'google').
  * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste' o 'cabreado' (solo voces de IA).
  * @returns {Promise<{streamOrUrl: (import('node:stream').Readable|string), voiceUsed: string}>}
  */
