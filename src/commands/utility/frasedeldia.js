@@ -1,11 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getFrasesChannel } = require('../../utils/configManager');
+const { getRandomQuote } = require('../../utils/quoteManager');
 const { addMessageToQueue } = require('../../utils/voiceQueueManager');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('frase-del-dia')
-		.setDescription('Extrae una frase que contenga "By [Autor]" del canal configurado y la lee con la voz de El Xokas.'),
+		.setDescription('Elige una frase célebre aleatoria de la base de datos y la reproduce con la voz de El Xokas.'),
 	async execute(interaction) {
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
@@ -27,93 +27,28 @@ module.exports = {
 			});
 		}
 
-		// 3. Obtenemos el ID del canal configurado desde PostgreSQL
-		const channelId = await getFrasesChannel(guildId);
-		if (!channelId) {
-			return interaction.reply({
-				content: '❌ El canal de frases del día no ha sido configurado en este servidor. Un administrador debe configurarlo usando `/configurar-canal-frases`.',
-				ephemeral: true,
-			});
-		}
-
-		// 4. Obtenemos el canal de texto en el servidor de Discord
-		const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
-		if (!channel) {
-			return interaction.reply({
-				content: '❌ El canal de texto configurado para las frases ya no existe en el servidor. Un administrador debe registrar uno nuevo con `/configurar-canal-frases`.',
-				ephemeral: true,
-			});
-		}
-
-		// Deferimos la respuesta ya que buscar mensajes en la API y sintetizar el audio puede demorar
+		// Deferimos la respuesta ya que la consulta en la base de datos y la síntesis pueden demorar
 		await interaction.deferReply();
 
 		try {
-			// 5. Obtenemos los últimos 100 mensajes del canal de frases
-			const messages = await channel.messages.fetch({ limit: 100 });
-			
-			if (!messages || messages.size === 0) {
+			// 3. Obtenemos una frase aleatoria desde PostgreSQL
+			const quote = await getRandomQuote(guildId);
+
+			if (!quote) {
 				return interaction.editReply({
-					content: '❌ No se encontraron mensajes en el canal de frases o el canal está completamente vacío.',
-					ephemeral: true,
+					content: '❌ **No hay frases célebres registradas en la base de datos de este servidor.**\n\nUsa el comando \`/agregar-frase\` para añadir la primera frase legendaria (ej: `/agregar-frase texto:Francia no gana la copa del mundo 2026 autor:CRONOXT`).',
+					ephemeral: false,
 				});
 			}
 
-			// 6. Filtramos los mensajes que cumplan con la firma "by [Autor]" o "By [Autor]"
-			const filteredMessages = messages.filter(msg => {
-				const content = msg.content?.trim();
-				if (!content || msg.author.bot || content.startsWith('/') || content.startsWith('!')) {
-					return false;
-				}
-				
-				// Verificamos que contenga la palabra "by" o "By" de forma aislada
-				return /\b(by|By|BY)\b/i.test(content);
-			});
-
-			console.log(`[DEBUG] Canal consultado: #${channel.name} (${channel.id}). Mensajes leídos en total: ${messages.size}`);
-			console.log(`[DEBUG] Muestra de los últimos 5 mensajes:`, messages.first(5).map(m => `Author: ${m.author.username}, Content: "${m.content}"`));
-
-			if (filteredMessages.size === 0) {
-				return interaction.editReply({
-					content: `❌ No se encontraron citas válidas que contengan la firma **"By [Autor]"** en el canal ${channel}. Asegúrate de que el canal configurado sea el correcto y contenga frases válidas.`,
-					ephemeral: true,
-				});
-			}
-
-			// 7. Seleccionamos un mensaje al azar
-			const randomMsg = filteredMessages.random();
-			const content = randomMsg.content.trim();
-			
-			// Procesamos la frase y el autor de la cita dividiendo en el "by"
-			const parts = content.split(/\bby\b/i);
-			let frase = parts[0].trim();
-			let autorCitado = parts[1]?.trim() || 'Desconocido';
-
-			// Limpiamos las comillas exteriores que suelen envolver la frase
-			frase = frase.replace(/^["'«“]+|["'»”]+$/g, '').trim();
-
-			// Si por alguna razón la frase quedó vacía (ej: mensaje mal escrito)
-			if (!frase) {
-				return interaction.editReply({
-					content: '❌ El mensaje seleccionado no tenía un formato de frase válido.',
-					ephemeral: true,
-				});
-			}
-
-			// Límite de caracteres para la API de voz
-			let fraseParaLeer = frase;
-			if (fraseParaLeer.length > 200) {
-				fraseParaLeer = fraseParaLeer.substring(0, 197) + '...';
-			}
-
-			// 8. Creamos el Embed de Discord estético
+			// 4. Creamos el Embed de Discord estético citando la frase
 			const embed = new EmbedBuilder()
 				.setColor('#c084fc') // Morado místico
 				.setTitle('🗣️ La Frase del Día')
-				.setDescription(`**"${frase}"**`)
+				.setDescription(`**"${quote.text}"**`)
 				.addFields(
-					{ name: 'Dicho por', value: `👤 **${autorCitado}**`, inline: true },
-					{ name: 'Registrado por', value: `${randomMsg.author}`, inline: true }
+					{ name: 'Dicho por', value: `👤 **${quote.author}**`, inline: true },
+					{ name: 'Registrado por', value: `👤 **@${quote.addedBy}**`, inline: true }
 				)
 				.setFooter({ text: 'Diciendo la frase con la voz de El Xokas (IA) 🎙️' })
 				.setTimestamp();
@@ -121,13 +56,13 @@ module.exports = {
 			// Enviamos el Embed público al chat de Discord
 			await interaction.editReply({ embeds: [embed] });
 
-			// 9. Encolamos la lectura de la frase limpia de voz
-			await addMessageToQueue(guildId, voiceChannel, fraseParaLeer, 'xokas', interaction);
+			// 5. Encolamos la lectura del texto con la voz de El Xokas
+			await addMessageToQueue(guildId, voiceChannel, quote.text, 'xokas', interaction);
 
 		} catch (error) {
-			console.error('[ERROR] Error al procesar la frase del día:', error);
+			console.error('[ERROR] Error al procesar la frase del día desde base de datos:', error);
 			return interaction.editReply({
-				content: '❌ Ocurrió un error inesperado al intentar leer el historial de frases o reproducir el audio.',
+				content: '❌ Ocurrió un error inesperado al intentar consultar la base de datos o procesar el audio.',
 				ephemeral: true,
 			});
 		}

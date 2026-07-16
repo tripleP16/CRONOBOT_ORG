@@ -104,8 +104,8 @@ El bot cuenta con 10 comandos registrados nativamente:
 | `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
 | `/dado` | Ninguno | Ninguno | Lanza un dado tradicional de 6 caras y muestra el resultado aleatorio de forma estética. |
-| `/configurar-canal-frases` | `<canal>` | `Manage Guild` | Configura el canal de texto oficial de donde se extraerán las frases del día (guarda en Postgres). |
-| `/frase-del-dia` | Ninguno | Ninguno | Lee una frase aleatoria del canal configurado y la reproduce por voz con la IA de **El Xokas**. |
+| `/agregar-frase` | `<texto>` `<autor>` | Ninguno | Añade una frase célebre a la base de datos de PostgreSQL (autor en texto plano). |
+| `/frase-del-dia` | Ninguno | Ninguno | Obtiene una frase aleatoria de la base de datos y la reproduce por voz con la IA de **El Xokas**. |
 
 ---
 

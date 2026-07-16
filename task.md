@@ -42,3 +42,10 @@
   - `[x]` Crear comando `/configurar-canal-frases` en `src/commands/utility/configfrases.js`
   - `[x]` Crear comando `/frase-del-dia` en `src/commands/utility/frasedeldia.js`
   - `[x]` Desplegar cambios locales y hacer commit final de Git
+- `[x]` Persistencia de Frases en PostgreSQL
+  - `[x]` Crear tabla `guild_quotes` en `src/database.js`
+  - `[x]` Crear helper `src/utils/quoteManager.js` para persistencia en Postgres
+  - `[x]` Crear comando `/agregar-frase` en `src/commands/utility/agregarfrase.js`
+  - `[x]` Reescribir `/frase-del-dia` para leer de la base de datos
+  - `[x]` Desplegar cambios y hacer commit de Git
+

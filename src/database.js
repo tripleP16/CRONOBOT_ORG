@@ -85,6 +85,20 @@ async function initDatabase() {
 		`);
 		console.log('[INFO] Tabla "guild_configs" verificada/creada.');
 		
+		// 5. Tabla de Frases Célebres (Quotes)
+		await query(`
+			CREATE TABLE IF NOT EXISTS guild_quotes (
+				id SERIAL PRIMARY KEY,
+				guild_id VARCHAR(50) NOT NULL,
+				quote_text TEXT NOT NULL,
+				quote_author VARCHAR(100) NOT NULL,
+				added_by VARCHAR(100) NOT NULL,
+				created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+			)
+		`);
+		await query(`CREATE INDEX IF NOT EXISTS idx_guild_quotes_guild_id ON guild_quotes(guild_id)`);
+		console.log('[INFO] Tabla "guild_quotes" e índice verificados/creados.');
+		
 		console.log('[EXITO] Base de datos de PostgreSQL inicializada correctamente.');
 	} catch (error) {
 		console.error('[ERROR] Error crítico al inicializar la base de datos de PostgreSQL:', error);
