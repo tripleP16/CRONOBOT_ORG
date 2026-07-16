@@ -57,7 +57,7 @@ module.exports = {
 			await interaction.editReply({ embeds: [embed] });
 
 			// 5. Encolamos la lectura del texto con la voz de El Xokas
-			await addMessageToQueue(guildId, voiceChannel, quote.text + ',' + quote.author, 'xokas', interaction);
+			await addMessageToQueue(guildId, voiceChannel, quote.text + ',By' + quote.author, 'xokas', interaction);
 
 		} catch (error) {
 			console.error('[ERROR] Error al procesar la frase del día desde base de datos:', error);
