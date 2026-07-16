@@ -22,12 +22,13 @@ async function logCommand(userId, username, commandName, guildId, guildName, det
 async function getStats() {
 	try {
 		// Ejecutamos consultas en paralelo para máxima eficiencia
-		const [totalResult, commandResult, userResult, recentResult, voiceResult] = await Promise.all([
+		const [totalResult, commandResult, userResult, recentResult, voiceResult, quotesResult] = await Promise.all([
 			query('SELECT COUNT(*) FROM command_logs'),
 			query('SELECT command_name as name, COUNT(*)::integer as count FROM command_logs GROUP BY command_name ORDER BY count DESC'),
 			query('SELECT username, COUNT(*)::integer as count FROM command_logs GROUP BY username ORDER BY count DESC LIMIT 5'),
 			query('SELECT user_id as "userId", username, command_name as "commandName", guild_id as "guildId", guild_name as "guildName", timestamp FROM command_logs ORDER BY timestamp DESC LIMIT 20'),
-			query("SELECT COALESCE(details, 'Google Translate') as voice, COUNT(*)::integer as count FROM command_logs WHERE command_name IN ('decir', 'decir-ia') GROUP BY details ORDER BY count DESC")
+			query("SELECT COALESCE(details, 'Google Translate') as voice, COUNT(*)::integer as count FROM command_logs WHERE command_name IN ('decir', 'decir-ia') GROUP BY details ORDER BY count DESC"),
+			query('SELECT COUNT(*) FROM guild_quotes')
 		]);
 
 		const totalExecutions = parseInt(totalResult.rows[0].count) || 0;
@@ -35,13 +36,15 @@ async function getStats() {
 		const topUsers = userResult.rows;
 		const recentLogs = recentResult.rows;
 		const voiceStats = voiceResult.rows;
+		const totalQuotes = parseInt(quotesResult.rows[0].count) || 0;
 
 		return {
 			totalExecutions,
 			commandStats,
 			topUsers,
 			recentLogs,
-			voiceStats
+			voiceStats,
+			totalQuotes
 		};
 	} catch (error) {
 		console.error('[ERROR] Error al procesar estadísticas de PostgreSQL:', error);
@@ -50,7 +53,8 @@ async function getStats() {
 			commandStats: [],
 			topUsers: [],
 			recentLogs: [],
-			voiceStats: []
+			voiceStats: [],
+			totalQuotes: 0
 		};
 	}
 }

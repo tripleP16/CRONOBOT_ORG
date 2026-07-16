@@ -14,7 +14,7 @@ El bot destaca por incorporar un **Dashboard Web en tiempo real** (Express) que 
 *   **Dashboard Web Premium (SaaS Layout):**
     *   **Dashboard interactivo** con selector de tema claro/oscuro persistente (guardado en `localStorage`).
     *   **Moderación en Vivo:** Visualización de sanciones activas de voz con nombres de usuario resueltos por la API de Discord, fotos de perfil (avatares) y temporizadores dinámicos de cuenta regresiva en segundos reales.
-    *   **Analíticas:** Gráfico de dona interactivo (Chart.js) que representa el volumen y popularidad de comandos ejecutados, además de una tarjeta de métrica superior con la **Voz Favorita** y un panel de desglose proporcional de uso de voces (porcentaje y conteo).
+    *   **Analíticas:** Gráfico de dona interactivo (Chart.js) que representa el volumen y popularidad de comandos ejecutados, además de tarjetas de métrica superior con la **Voz Favorita**, **Frases Guardadas** en tiempo real y un panel de desglose proporcional de uso de voces (porcentaje y conteo).
     *   **Auditoría:** Historial reciente de los últimos 20 comandos almacenados de forma permanente en PostgreSQL.
 
 ---
@@ -22,7 +22,7 @@ El bot destaca por incorporar un **Dashboard Web en tiempo real** (Express) que 
 ## 🛠️ Arquitectura y Tecnologías
 
 *   **Motor Principal:** Node.js (v18+) & Discord.js v14.
-*   **Base de Datos:** PostgreSQL (almacenamiento persistente de logs de comandos y estados de sanciones activas).
+*   **Base de Datos:** PostgreSQL (almacenamiento de logs de comandos, estados de sanciones activas, frases célebres y configuraciones de servidor).
 *   **API Web & Frontend:** Express.js, Vanilla CSS con Mesh Gradients, JavaScript nativo y Chart.js para las visualizaciones.
 *   **Servicio de Audio:** `@discordjs/voice`, `libsodium-wrappers`, `@discordjs/opus` y `prism-media` apoyados en **FFmpeg**.
 
@@ -92,7 +92,7 @@ El bot iniciará sesión en Discord y el servidor web estará disponible en `htt
 
 ## 🛡️ Lista de Comandos de Barra (Slash Commands)
 
-El bot cuenta con 10 comandos registrados nativamente:
+El bot cuenta con 11 comandos registrados nativamente:
 
 | Comando | Argumentos | Permisos requeridos | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -104,7 +104,8 @@ El bot cuenta con 10 comandos registrados nativamente:
 | `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
 | `/dado` | Ninguno | Ninguno | Lanza un dado tradicional de 6 caras y muestra el resultado aleatorio de forma estética. |
-| `/agregar-frase` | `<texto>` `<autor>` | Ninguno | Añade una frase célebre a la base de datos de PostgreSQL (autor en texto plano). |
+| `/configurar-canal-frases` | `<canal>` | `Administrator` | Configura el canal de texto del servidor donde se anunciarán las nuevas frases agregadas. |
+| `/agregar-frase` | `<texto>` `<autor>` | Ninguno | Añade una frase célebre a la base de datos de PostgreSQL y la anuncia en el canal configurado si existe. |
 | `/frase-del-dia` | Ninguno | Ninguno | Obtiene una frase aleatoria de la base de datos y la reproduce por voz con la IA de **El Xokas**. |
 
 ---

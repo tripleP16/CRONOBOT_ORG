@@ -177,6 +177,12 @@ function updateDashboardStats(data) {
 	// 1. Tarjetas Superiores
 	document.getElementById('total-commands').textContent = data.totalExecutions;
 
+	// Total de frases guardadas
+	const totalQuotesElement = document.getElementById('total-quotes');
+	if (totalQuotesElement) {
+		totalQuotesElement.textContent = data.totalQuotes || 0;
+	}
+
 	// Servidores en caché
 	const uniqueGuilds = new Set(data.recentLogs.map(log => log.guildId).filter(id => id && id !== 'Mensaje Privado'));
 	document.getElementById('servers-count').textContent = Math.max(1, uniqueGuilds.size);
