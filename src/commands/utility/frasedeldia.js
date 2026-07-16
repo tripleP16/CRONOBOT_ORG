@@ -70,9 +70,12 @@ module.exports = {
 				return /\b(by|By|BY)\b/i.test(content);
 			});
 
+			console.log(`[DEBUG] Canal consultado: #${channel.name} (${channel.id}). Mensajes leídos en total: ${messages.size}`);
+			console.log(`[DEBUG] Muestra de los últimos 5 mensajes:`, messages.first(5).map(m => `Author: ${m.author.username}, Content: "${m.content}"`));
+
 			if (filteredMessages.size === 0) {
 				return interaction.editReply({
-					content: '❌ No se encontraron citas válidas que contengan la firma **"By [Autor]"** (por ejemplo: *"Frase" By Autor*) en el canal configurado.',
+					content: `❌ No se encontraron citas válidas que contengan la firma **"By [Autor]"** en el canal ${channel}. Asegúrate de que el canal configurado sea el correcto y contenga frases válidas.`,
 					ephemeral: true,
 				});
 			}
