@@ -28,6 +28,30 @@ module.exports = {
 		const success = await addQuote(guildId, cleanText, author, addedBy);
 
 		if (success) {
+			// Enviar la frase al canal de texto configurado si existe
+			try {
+				const { getFrasesChannel } = require('../../utils/configManager');
+				const channelId = await getFrasesChannel(guildId);
+				if (channelId) {
+					const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+					if (channel && channel.isTextBased()) {
+						const { EmbedBuilder } = require('discord.js');
+						const announcementEmbed = new EmbedBuilder()
+							.setColor('#c084fc') // Morado místico
+							.setTitle('📝 Nueva Frase Registrada')
+							.setDescription(`**"${cleanText}"**`)
+							.addFields(
+								{ name: 'Dicho por', value: `👤 **${author}**`, inline: true },
+								{ name: 'Añadido por', value: `👤 **@${addedBy}**`, inline: true }
+							)
+							.setTimestamp();
+						await channel.send({ embeds: [announcementEmbed] });
+					}
+				}
+			} catch (err) {
+				console.error('[ERROR] No se pudo enviar el anuncio al canal de frases configurado:', err);
+			}
+
 			return interaction.reply({
 				content: `✅ **¡Frase Añadida a PostgreSQL!**\n> *"${cleanText}"*\n> — **By ${author}**\n\nAhora cualquiera puede escucharla usando el comando \`/frase-del-dia\`.`,
 				ephemeral: false
