@@ -361,13 +361,26 @@ body.light-theme .toggle-icon.sun {
    STATS CARDS
    ========================================================================== */
 .stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	display: flex;
 	gap: 20px;
 	margin-bottom: 24px;
+	overflow-x: auto;
+	padding-bottom: 10px;
+	scroll-behavior: smooth;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar barra de desplazamiento visualmente pero mantener la funcionalidad */
+.stats-grid::-webkit-scrollbar {
+	display: none;
+}
+.stats-grid {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
 }
 
 .stat-card {
+	flex: 0 0 245px;
 	background: var(--bg-panel);
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
