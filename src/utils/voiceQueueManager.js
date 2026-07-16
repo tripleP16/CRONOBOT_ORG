@@ -95,7 +95,7 @@ async function processQueue(guildId) {
 	if (serverQueue.queue.length === 0) {
 		serverQueue.isPlaying = false;
 		
-		console.log(`[INFO] Cola de voz vacía en servidor ${guildId}. Programando desconexión en 10 segundos...`);
+		console.log(`[INFO] Cola de voz vacía en servidor ${guildId}. Programando desconexión en 5 minutos...`);
 		serverQueue.disconnectTimeout = setTimeout(() => {
 			if (serverQueue.connection) {
 				console.log(`[INFO] Desconectando bot de voz por inactividad en servidor ${guildId}.`);
@@ -107,7 +107,7 @@ async function processQueue(guildId) {
 				serverQueue.connection = null;
 				serverQueue.player = null;
 			}
-		}, 10000); // 10 segundos
+		}, 300000); // 5 minutos de espera por inactividad
 		return;
 	}
 
