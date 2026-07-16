@@ -61,18 +61,28 @@ async function addMessageToQueue(guildId, voiceChannel, text, voiceOption, inter
 	// Si ya está reproduciendo, respondemos con la posición en la cola
 	if (serverQueue.isPlaying) {
 		const position = serverQueue.queue.length;
-		await interaction.reply({
+		const responsePayload = {
 			content: `⏳ **¡Mensaje en cola!** Posición **#${position}** en la lista de espera (Voz: *${voiceLabel}*${intensityLabel}) para leer: *"${text}"*`,
 			ephemeral: true
-		});
+		};
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp(responsePayload);
+		} else {
+			await interaction.reply(responsePayload);
+		}
 		return;
 	}
 
 	// Si está libre, respondemos confirmando el inicio
-	await interaction.reply({
+	const startPayload = {
 		content: `🎙️ Conectando al canal para leer con la voz de **${voiceLabel}**${intensityLabel}: *"${text}"*...`,
 		ephemeral: true
-	});
+	};
+	if (interaction.replied || interaction.deferred) {
+		await interaction.followUp(startPayload);
+	} else {
+		await interaction.reply(startPayload);
+	}
 
 	// Cancelamos cualquier temporizador de desconexión por inactividad pendiente
 	if (serverQueue.disconnectTimeout) {

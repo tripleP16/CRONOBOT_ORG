@@ -36,3 +36,9 @@
 - `[x]` Agregar voces de IA de AriGameplays y El Rubius en `/decir-ia`
 - `[x]` Agregar intensidad "Cachondo/a" (seductor susurrante) en `/decir-ia`
 - `[x]` Crear comando de entretenimiento `/dado` para lanzar un número aleatorio de 1 a 6
+- `[x]` Sistema de Frase del Día por Voz IA (/frase-del-dia)
+  - `[x]` Crear tabla `guild_configs` en `src/database.js`
+  - `[x]` Crear helper `src/utils/configManager.js` para leer/escribir configuraciones
+  - `[x]` Crear comando `/configurar-canal-frases` en `src/commands/utility/configfrases.js`
+  - `[x]` Crear comando `/frase-del-dia` en `src/commands/utility/frasedeldia.js`
+  - `[x]` Desplegar cambios locales y hacer commit final de Git

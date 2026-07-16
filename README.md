@@ -92,7 +92,7 @@ El bot iniciará sesión en Discord y el servidor web estará disponible en `htt
 
 ## 🛡️ Lista de Comandos de Barra (Slash Commands)
 
-El bot cuenta con 7 comandos registrados nativamente:
+El bot cuenta con 10 comandos registrados nativamente:
 
 | Comando | Argumentos | Permisos requeridos | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -103,6 +103,9 @@ El bot cuenta con 7 comandos registrados nativamente:
 | `/decir` | `<texto>` | Ninguno | Conecta al bot al canal de voz y lee el texto usando la voz clásica de **Google Translate** (Gratuito y rápido). |
 | `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
+| `/dado` | Ninguno | Ninguno | Lanza un dado tradicional de 6 caras y muestra el resultado aleatorio de forma estética. |
+| `/configurar-canal-frases` | `<canal>` | `Manage Guild` | Configura el canal de texto oficial de donde se extraerán las frases del día (guarda en Postgres). |
+| `/frase-del-dia` | Ninguno | Ninguno | Lee una frase aleatoria del canal configurado y la reproduce por voz con la IA de **El Xokas**. |
 
 ---
 
@@ -113,7 +116,7 @@ El sistema de audio está desacoplado en el módulo central [voiceQueueManager.j
 1.  **Cola Única Compartida:** Si un usuario ejecuta `/decir` y otro ejecuta `/decir-ia`, ambos mensajes entran a la misma cola del servidor y se leen de forma secuencial sin pisarse.
 2.  **Seguimiento al Usuario:** Si el usuario se cambia de canal de voz mientras su mensaje está en cola, el bot se desconectará del canal anterior y se unirá al nuevo canal del usuario para reproducir su audio.
 3.  **Protección contra Expulsiones (Kicks):** Si un miembro desconecta al bot a la fuerza del canal de voz mientras está reproduciendo, el bot detecta el estado `Disconnected`, limpia los recursos en 1 segundo y reanuda el procesamiento de la cola con el siguiente mensaje.
-4.  **Auto-Desconexión por Inactividad:** Cuando la cola se vacía, el bot inicia un temporizador de 10 segundos. Si no llega ningún mensaje nuevo durante ese tiempo, se desconecta para liberar recursos de red en el host.
+4.  **Auto-Desconexión por Inactividad:** Cuando la cola se vacía, el bot inicia un temporizador de **5 minutos** (300,000 ms). Si no llega ningún mensaje nuevo durante ese tiempo, se desconecta para liberar recursos de red en el host.
 
 ---
 

@@ -76,6 +76,15 @@ async function initDatabase() {
 		`);
 		console.log('[INFO] Tabla "voice_blocks" verificada/creada.');
 		
+		// 4. Tabla de Configuraciones del Servidor
+		await query(`
+			CREATE TABLE IF NOT EXISTS guild_configs (
+				guild_id VARCHAR(50) PRIMARY KEY,
+				frases_channel_id VARCHAR(50)
+			)
+		`);
+		console.log('[INFO] Tabla "guild_configs" verificada/creada.');
+		
 		console.log('[EXITO] Base de datos de PostgreSQL inicializada correctamente.');
 	} catch (error) {
 		console.error('[ERROR] Error crítico al inicializar la base de datos de PostgreSQL:', error);
