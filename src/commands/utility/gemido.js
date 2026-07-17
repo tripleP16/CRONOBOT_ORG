@@ -2,18 +2,19 @@ const { SlashCommandBuilder } = require('discord.js');
 const { addMessageToQueue } = require('../../utils/voiceQueueManager');
 const { isFishVoiceAvailable } = require('../../utils/ttsService');
 
+// Repertorio de gemidos de dolor predefinidos. Cada gemido lleva emparejada la
+// intensidad que mejor lo interpreta: 'cabreado' (grito de dolor) o 'triste' (quejido lastimero).
+const GEMIDOS_DOLOR = [
+	{ text: '¡Ay, ay, ay! ¡Sigue sigue sigue no pares , que rico!', intensity: 'cachondo' },
+];
+
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('decir-ia')
-		.setDescription('Conecta al bot a tu canal de voz y habla usando voces clonadas por IA.')
-		.addStringOption(option =>
-			option.setName('texto')
-				.setDescription('El texto que deseas que el bot diga (máximo 200 caracteres).')
-				.setRequired(true)
-				.setMaxLength(200))
+		.setName('gemido')
+		.setDescription('Conecta al bot a tu canal de voz y suelta un gemido de dolor aleatorio con la voz de IA elegida.')
 		.addStringOption(option =>
 			option.setName('voz')
-				.setDescription('La voz de IA con la que hablará el bot (El Xokas por defecto).')
+				.setDescription('La voz de IA que gemirá de dolor (El Xokas por defecto).')
 				.setRequired(false)
 				.addChoices(
 					{ name: 'El Xokas (IA)', value: 'xokas' },
@@ -32,29 +33,16 @@ module.exports = {
 					{ name: 'Cristiano Ronaldo (IA)', value: 'cr7' },
 					{ name: 'Dalas Review (IA)', value: 'dalas' },
 					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
-				))
-		.addStringOption(option =>
-			option.setName('intensidad')
-				.setDescription('El tono con el que hablará la voz de IA (Normal por defecto).')
-				.setRequired(false)
-				.addChoices(
-					{ name: 'Normal', value: 'normal' },
-					{ name: 'Emocionado', value: 'emocionado' },
-					{ name: 'Triste', value: 'triste' },
-					{ name: 'Cabreado (gritando)', value: 'cabreado' },
-					{ name: 'Cachondo/a (seductor)', value: 'cachondo' }
 				)),
 	async execute(interaction) {
-		const text = interaction.options.getString('texto');
 		const voiceOption = interaction.options.getString('voz') || 'xokas';
-		const intensity = interaction.options.getString('intensidad') || 'normal';
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
 
 		// 1. Validamos que las voces de IA estén configuradas en el servidor
 		if (!isFishVoiceAvailable()) {
 			return interaction.reply({
-				content: '❌ Las voces de IA no están configuradas (falta `FISH_AUDIO_API_KEY` en el servidor). Usa `/decir` para la voz clásica de Google.',
+				content: '❌ Las voces de IA no están configuradas (falta `FISH_AUDIO_API_KEY` en el servidor), así que no puedo gemir de dolor.',
 				ephemeral: true,
 			});
 		}
@@ -76,7 +64,10 @@ module.exports = {
 			});
 		}
 
-		// Delegamos al gestor de colas de voz con la voz de IA y la intensidad seleccionadas
-		await addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity);
+		// Elegimos un gemido de dolor aleatorio del repertorio
+		const gemido = GEMIDOS_DOLOR[Math.floor(Math.random() * GEMIDOS_DOLOR.length)];
+
+		// Delegamos al gestor de colas de voz con el gemido y su intensidad predefinida
+		await addMessageToQueue(guildId, voiceChannel, gemido.text, voiceOption, interaction, gemido.intensity);
 	},
 };

@@ -49,3 +49,5 @@
   - `[x]` Reescribir `/frase-del-dia` para leer de la base de datos
   - `[x]` Desplegar cambios y hacer commit de Git
 - `[x]` Agregar voces de IA de Nicki Nicole y Emilia Mernes en `/decir-ia`
+- `[x]` Agregar voces de IA de Maria Becerra, Aroyitt y Cristinini en `/decir-ia`
+- `[x]` Agregar voces de IA de Lionel Messi y Cristiano Ronaldo en `/decir-ia`
