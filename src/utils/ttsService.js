@@ -24,6 +24,12 @@ const FISH_VOICE_MODELS = {
 	nicki: () => process.env.FISH_AUDIO_NICKI_MODEL_ID || '6386397c1ad34d8e9932178ec63ef8d5',
 	// Voz clonada de Emilia Mernes (modelo comunitario "Emilia Mernes")
 	emilia: () => process.env.FISH_AUDIO_EMILIA_MODEL_ID || 'fdc09441d4124a5fa1694433dcd95961',
+	// Voz clonada de Maria Becerra (modelo comunitario "Maria becerra")
+	becerra: () => process.env.FISH_AUDIO_BECERRA_MODEL_ID || '90bd2654c2674e63b2a63ffd884bac15',
+	// Voz clonada de Aroyitt (modelo comunitario "Aroyitt")
+	aroyitt: () => process.env.FISH_AUDIO_AROYITT_MODEL_ID || 'b8268478a56c4a5ca71966bdaa517347',
+	// Voz clonada de Cristinini (modelo comunitario "Cristinini")
+	cristinini: () => process.env.FISH_AUDIO_CRISTININI_MODEL_ID || 'c34f853afd934896894fda6aa9cc7835',
 	// Voz clonada de Dalas Review (modelo comunitario "Dalas Review")
 	dalas: () => process.env.FISH_AUDIO_DALAS_MODEL_ID || '7b1f244402da4b04889bf7e7830c8af5',
 	// Voz clonada de Hugo Chávez (modelo comunitario "Hugo Chavez (ExPresidente de Venezuela)")

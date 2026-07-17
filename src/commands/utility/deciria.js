@@ -25,6 +25,9 @@ module.exports = {
 					{ name: 'El Rubius (IA)', value: 'rubius' },
 					{ name: 'Nicki Nicole (IA)', value: 'nicki' },
 					{ name: 'Emilia Mernes (IA)', value: 'emilia' },
+					{ name: 'Maria Becerra (IA)', value: 'becerra' },
+					{ name: 'Aroyitt (IA)', value: 'aroyitt' },
+					{ name: 'Cristinini (IA)', value: 'cristinini' },
 					{ name: 'Dalas Review (IA)', value: 'dalas' },
 					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
 				))
