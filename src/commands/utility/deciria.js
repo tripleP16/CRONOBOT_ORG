@@ -43,11 +43,22 @@ module.exports = {
 					{ name: 'Triste', value: 'triste' },
 					{ name: 'Cabreado (gritando)', value: 'cabreado' },
 					{ name: 'Cachondo/a (seductor)', value: 'cachondo' }
+				))
+		.addStringOption(option =>
+			option.setName('modelo')
+				.setDescription('El modelo de síntesis de Fish Audio (el configurado en el servidor por defecto).')
+				.setRequired(false)
+				.addChoices(
+					{ name: 'Estándar del servidor', value: 'default' },
+					{ name: 'S2.1 Pro (free tier)', value: 's2.1-pro-free' }
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
 		const voiceOption = interaction.options.getString('voz') || 'xokas';
 		const intensity = interaction.options.getString('intensidad') || 'normal';
+		const modelOption = interaction.options.getString('modelo');
+		// 'default' o ausencia de opción => usar el modelo configurado en el servidor
+		const synthModel = modelOption && modelOption !== 'default' ? modelOption : null;
 		const voiceChannel = interaction.member.voice.channel;
 		const guildId = interaction.guild.id;
 
@@ -76,7 +87,7 @@ module.exports = {
 			});
 		}
 
-		// Delegamos al gestor de colas de voz con la voz de IA y la intensidad seleccionadas
-		await addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity);
+		// Delegamos al gestor de colas de voz con la voz de IA, la intensidad y el modelo seleccionados
+		await addMessageToQueue(guildId, voiceChannel, text, voiceOption, interaction, intensity, synthModel);
 	},
 };
