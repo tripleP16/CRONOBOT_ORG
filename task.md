@@ -48,4 +48,4 @@
   - `[x]` Crear comando `/agregar-frase` en `src/commands/utility/agregarfrase.js`
   - `[x]` Reescribir `/frase-del-dia` para leer de la base de datos
   - `[x]` Desplegar cambios y hacer commit de Git
-
+- `[x]` Agregar voces de IA de Nicki Nicole y Emilia Mernes en `/decir-ia`
