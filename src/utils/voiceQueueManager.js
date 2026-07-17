@@ -47,7 +47,10 @@ const INTENSITY_LABELS = {
 };
 
 const MODEL_LABELS = {
-	's2.1-pro-free': 'S2.1 Pro (free tier)',
+	's2.1-pro-free': 'S2.1 Pro Free',
+	's2.1-pro': 'S2.1 Pro',
+	's2-pro': 'S2 Pro',
+	's1': 'S1',
 };
 
 /**

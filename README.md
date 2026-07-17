@@ -108,13 +108,26 @@ El bot cuenta con 12 comandos registrados nativamente:
 | `/mute` | `<usuario>` `<segundos>` `[razon]` | `Mute Members` | Silencia y ensordece al usuario en canales de voz tras completar un reto matemático. |
 | `/voiceblock` | `<usuario>` `<canal>` `<segundos>` `[razon]` | `Manage Channels` | Bloquea temporalmente al usuario de un canal de voz tras resolver un reto matemático. |
 | `/decir` | `<texto>` | Ninguno | Conecta al bot al canal de voz y lee el texto usando la voz clásica de **Google Translate** (Gratuito y rápido). |
-| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` `[modelo]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Lionel Messi**, **Cristiano Ronaldo**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). Modelos: Estándar del servidor (por defecto) o **S2.1 Pro (free tier)**. |
+| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` `[modelo]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Lionel Messi**, **Cristiano Ronaldo**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). Modelos: Estándar del servidor (por defecto), **S2.1 Pro Free** (gratis), **S2.1 Pro**, **S2 Pro** y **S1** (de pago). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
 | `/dado` | Ninguno | Ninguno | Lanza un dado tradicional de 6 caras y muestra el resultado aleatorio de forma estética. |
 | `/configurar-canal-frases` | `<canal>` | `Administrator` | Configura el canal de texto del servidor donde se anunciarán las nuevas frases agregadas. |
 | `/agregar-frase` | `<texto>` `<autor>` | Ninguno | Añade una frase célebre a la base de datos de PostgreSQL y la anuncia en el canal configurado si existe. |
 | `/frase-del-dia` | Ninguno | Ninguno | Obtiene una frase aleatoria de la base de datos y la reproduce por voz con la IA de **El Xokas**. |
 | `/gemido` | `[voz]` | Ninguno | Conecta al bot y reproduce un gemido de dolor aleatorio con la voz de IA elegida (**El Xokas** por defecto). Cada gemido trae emparejada su propia intensidad: grito cabreado o quejido triste. |
+
+---
+
+## 🧠 Modelos de Síntesis de Fish Audio (opción `modelo` de `/decir-ia`)
+
+| Modelo | Uso (costo) | Notas |
+| :--- | :--- | :--- |
+| `s2.1-pro-free` | **Gratis** ($0 / M bytes UTF-8) | Bajo política de uso justo; ideal para desarrollo y uso casual. |
+| `s2.1-pro` | $15 / M bytes UTF-8 | Última generación Pro; consume créditos de la cuenta de Fish Audio. |
+| `s2-pro` | $15 / M bytes UTF-8 | Generación anterior Pro; único con soporte de diálogo multi-hablante en la API. |
+| `s1` | $15 / M bytes UTF-8 | Modelo clásico OpenAudio S1. |
+
+> **Rate limit:** Fish Audio limita por **peticiones concurrentes** según el gasto acumulado de la cuenta (no por QPS): 5 simultáneas sin pagos, 15 con ≥ $100 y 50 con ≥ $1.000 prepagados. Como referencia de uso, 1M de bytes UTF-8 equivale a ~180.000 palabras (~12 horas de voz). Si un modelo de pago falla por falta de créditos, el bot cae automáticamente a Google Translate.
 
 ---
 

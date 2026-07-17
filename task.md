@@ -52,3 +52,4 @@
 - `[x]` Agregar voces de IA de Maria Becerra, Aroyitt y Cristinini en `/decir-ia`
 - `[x]` Agregar voces de IA de Lionel Messi y Cristiano Ronaldo en `/decir-ia`
 - `[x]` Agregar opción `modelo` en `/decir-ia` para elegir el modelo de síntesis S2.1 Pro (free tier)
+- `[x]` Ampliar la opción `modelo` con todos los modelos de Fish Audio (S1, S2 Pro, S2.1 Pro y S2.1 Pro Free) documentando costo y rate limit

@@ -50,7 +50,10 @@ module.exports = {
 				.setRequired(false)
 				.addChoices(
 					{ name: 'Estándar del servidor', value: 'default' },
-					{ name: 'S2.1 Pro (free tier)', value: 's2.1-pro-free' }
+					{ name: 'S2.1 Pro Free (gratis, uso justo)', value: 's2.1-pro-free' },
+					{ name: 'S2.1 Pro (de pago, $15/M bytes)', value: 's2.1-pro' },
+					{ name: 'S2 Pro (de pago, $15/M bytes)', value: 's2-pro' },
+					{ name: 'S1 (de pago, $15/M bytes)', value: 's1' }
 				)),
 	async execute(interaction) {
 		const text = interaction.options.getString('texto');
