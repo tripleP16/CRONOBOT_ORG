@@ -10,7 +10,7 @@ El bot destaca por incorporar un **Dashboard Web en tiempo real** (Express) que 
 
 *   **Moderación Gamificada:** Comandos de moderación (`/mute` y `/voiceblock`) condicionados a resolver un reto matemático de habilidad rápida (10 segundos) antes de aplicarse.
 *   **Audio TTS con Cola & Robustez:** Comandos de síntesis de voz en tiempo real con sistema de colas secuenciales por servidor, control inteligente contra expulsiones forzadas y desconexión por inactividad (10 segundos).
-*   **Voces de IA Clonadas:** Integración con la API de **Fish Audio** para reproducir las voces de **El Xokas**, **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Dalas Review**, **Hugo Chávez** y cuatro **E-girls** (Clásica, Coqueta, Tifani ASMR y Seductora), con intensidades de tono (Normal/Emocionado/Triste/Cabreado a gritos/Cachondo susurrante) y fallback automático a Google Translate en caso de desconexión o falta de créditos.
+*   **Voces de IA Clonadas:** Integración con la API de **Fish Audio** para reproducir las voces de **El Xokas**, **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Lionel Messi**, **Cristiano Ronaldo**, **Dalas Review**, **Hugo Chávez** y cuatro **E-girls** (Clásica, Coqueta, Tifani ASMR y Seductora), con intensidades de tono (Normal/Emocionado/Triste/Cabreado a gritos/Cachondo susurrante) y fallback automático a Google Translate en caso de desconexión o falta de créditos.
 *   **Dashboard Web Premium (SaaS Layout):**
     *   **Dashboard interactivo** con selector de tema claro/oscuro persistente (guardado en `localStorage`).
     *   **Moderación en Vivo:** Visualización de sanciones activas de voz con nombres de usuario resueltos por la API de Discord, fotos de perfil (avatares) y temporizadores dinámicos de cuenta regresiva en segundos reales.
@@ -75,6 +75,8 @@ FISH_AUDIO_EMILIA_MODEL_ID=fdc09441d4124a5fa1694433dcd95961
 FISH_AUDIO_BECERRA_MODEL_ID=90bd2654c2674e63b2a63ffd884bac15
 FISH_AUDIO_AROYITT_MODEL_ID=b8268478a56c4a5ca71966bdaa517347
 FISH_AUDIO_CRISTININI_MODEL_ID=c34f853afd934896894fda6aa9cc7835
+FISH_AUDIO_MESSI_MODEL_ID=30ca8b4d162e463d818bb99101f4857e
+FISH_AUDIO_CR7_MODEL_ID=3521525edb80495e9ad276fc86c7a5e9
 FISH_AUDIO_DALAS_MODEL_ID=7b1f244402da4b04889bf7e7830c8af5
 FISH_AUDIO_CHAVEZ_MODEL_ID=1ae468b5d7854319a106af33198feed1
 FISH_AUDIO_MODEL=s2.1-pro-free
@@ -106,7 +108,7 @@ El bot cuenta con 11 comandos registrados nativamente:
 | `/mute` | `<usuario>` `<segundos>` `[razon]` | `Mute Members` | Silencia y ensordece al usuario en canales de voz tras completar un reto matemático. |
 | `/voiceblock` | `<usuario>` `<canal>` `<segundos>` `[razon]` | `Manage Channels` | Bloquea temporalmente al usuario de un canal de voz tras resolver un reto matemático. |
 | `/decir` | `<texto>` | Ninguno | Conecta al bot al canal de voz y lee el texto usando la voz clásica de **Google Translate** (Gratuito y rápido). |
-| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). |
+| `/decir-ia` | `<texto>` `[voz]` `[intensidad]` | Ninguno | Conecta al bot y lee el texto usando voces clonadas por IA (Fish Audio) con fallback a Google. Voces: **El Xokas** (por defecto), **E-girl** (Clásica, Coqueta, Tifani ASMR y Seductora), **AriGameplays**, **El Rubius**, **Nicki Nicole**, **Emilia Mernes**, **Maria Becerra**, **Aroyitt**, **Cristinini**, **Lionel Messi**, **Cristiano Ronaldo**, **Dalas Review** y **Hugo Chávez**. Intensidades: Normal, Emocionado, Triste, Cabreado (gritando) y Cachondo/a (seductor susurrante). |
 | `/clearqueue` | Ninguno | `Mute Members` | Limpia la cola de espera de voz, detiene el reproductor y desconecta al bot del canal de voz. |
 | `/dado` | Ninguno | Ninguno | Lanza un dado tradicional de 6 caras y muestra el resultado aleatorio de forma estética. |
 | `/configurar-canal-frases` | `<canal>` | `Administrator` | Configura el canal de texto del servidor donde se anunciarán las nuevas frases agregadas. |

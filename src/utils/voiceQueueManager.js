@@ -31,6 +31,8 @@ const VOICE_LABELS = {
 	becerra: 'Maria Becerra (IA)',
 	aroyitt: 'Aroyitt (IA)',
 	cristinini: 'Cristinini (IA)',
+	messi: 'Lionel Messi (IA)',
+	cr7: 'Cristiano Ronaldo (IA)',
 	dalas: 'Dalas Review (IA)',
 	chavez: 'Hugo Chávez (IA)',
 	google: 'Google Translate',

@@ -28,6 +28,8 @@ module.exports = {
 					{ name: 'Maria Becerra (IA)', value: 'becerra' },
 					{ name: 'Aroyitt (IA)', value: 'aroyitt' },
 					{ name: 'Cristinini (IA)', value: 'cristinini' },
+					{ name: 'Lionel Messi (IA)', value: 'messi' },
+					{ name: 'Cristiano Ronaldo (IA)', value: 'cr7' },
 					{ name: 'Dalas Review (IA)', value: 'dalas' },
 					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
 				))

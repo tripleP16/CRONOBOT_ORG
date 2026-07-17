@@ -30,6 +30,10 @@ const FISH_VOICE_MODELS = {
 	aroyitt: () => process.env.FISH_AUDIO_AROYITT_MODEL_ID || 'b8268478a56c4a5ca71966bdaa517347',
 	// Voz clonada de Cristinini (modelo comunitario "Cristinini")
 	cristinini: () => process.env.FISH_AUDIO_CRISTININI_MODEL_ID || 'c34f853afd934896894fda6aa9cc7835',
+	// Voz clonada de Lionel Messi (modelo comunitario "Lionel Messi")
+	messi: () => process.env.FISH_AUDIO_MESSI_MODEL_ID || '30ca8b4d162e463d818bb99101f4857e',
+	// Voz clonada de Cristiano Ronaldo (modelo comunitario "Cristiano Ronaldo")
+	cr7: () => process.env.FISH_AUDIO_CR7_MODEL_ID || '3521525edb80495e9ad276fc86c7a5e9',
 	// Voz clonada de Dalas Review (modelo comunitario "Dalas Review")
 	dalas: () => process.env.FISH_AUDIO_DALAS_MODEL_ID || '7b1f244402da4b04889bf7e7830c8af5',
 	// Voz clonada de Hugo Chávez (modelo comunitario "Hugo Chavez (ExPresidente de Venezuela)")
