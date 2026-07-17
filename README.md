@@ -99,7 +99,7 @@ El bot iniciará sesión en Discord y el servidor web estará disponible en `htt
 
 ## 🛡️ Lista de Comandos de Barra (Slash Commands)
 
-El bot cuenta con 11 comandos registrados nativamente:
+El bot cuenta con 12 comandos registrados nativamente:
 
 | Comando | Argumentos | Permisos requeridos | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -114,6 +114,7 @@ El bot cuenta con 11 comandos registrados nativamente:
 | `/configurar-canal-frases` | `<canal>` | `Administrator` | Configura el canal de texto del servidor donde se anunciarán las nuevas frases agregadas. |
 | `/agregar-frase` | `<texto>` `<autor>` | Ninguno | Añade una frase célebre a la base de datos de PostgreSQL y la anuncia en el canal configurado si existe. |
 | `/frase-del-dia` | Ninguno | Ninguno | Obtiene una frase aleatoria de la base de datos y la reproduce por voz con la IA de **El Xokas**. |
+| `/gemido` | `[voz]` | Ninguno | Conecta al bot y reproduce un gemido de dolor aleatorio con la voz de IA elegida (**El Xokas** por defecto). Cada gemido trae emparejada su propia intensidad: grito cabreado o quejido triste. |
 
 ---
 
