@@ -5,17 +5,12 @@ const { isFishVoiceAvailable } = require('../../utils/ttsService');
 // Repertorio de gemidos de dolor predefinidos. Cada gemido lleva emparejada la
 // intensidad que mejor lo interpreta: 'cabreado' (grito de dolor) o 'triste' (quejido lastimero).
 const GEMIDOS_DOLOR = [
-	{ text: '¡Ahhh! ¡Ay, ay, ay! ¡Me duele, me duele muchísimo!', intensity: 'cabreado' },
-	{ text: '¡AYYY! ¡Auch! ¡No, no, no, qué dolor tan horrible!', intensity: 'cabreado' },
-	{ text: '¡AAAAH! ¡Mi espalda! ¡Ay, ay, ay, ay, qué dolor!', intensity: 'cabreado' },
-	{ text: '¡Uyyy! ¡Ay, mi pierna! ¡Ay, ay, ay, no puedo más!', intensity: 'triste' },
-	{ text: '¡Aghhh! ¡Ayyy, por favor, que pare, que pare! ¡Duele demasiado!', intensity: 'triste' },
-	{ text: '¡Ay! ¡Auch, auch, auch! ¡Ahhh, me estoy muriendo del dolor!', intensity: 'triste' },
+	{ text: '¡Ay, ay, ay! ¡Sigue sigue sigue no pares , que rico!', intensity: 'cachondo' },
 ];
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('gemido-dolor')
+		.setName('gemido')
 		.setDescription('Conecta al bot a tu canal de voz y suelta un gemido de dolor aleatorio con la voz de IA elegida.')
 		.addStringOption(option =>
 			option.setName('voz')
