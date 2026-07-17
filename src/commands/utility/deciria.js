@@ -23,6 +23,8 @@ module.exports = {
 					{ name: 'E-girl Seductora (IA)', value: 'seductora' },
 					{ name: 'AriGameplays (IA)', value: 'ari' },
 					{ name: 'El Rubius (IA)', value: 'rubius' },
+					{ name: 'Nicki Nicole (IA)', value: 'nicki' },
+					{ name: 'Emilia Mernes (IA)', value: 'emilia' },
 					{ name: 'Dalas Review (IA)', value: 'dalas' },
 					{ name: 'Hugo Chávez (IA)', value: 'chavez' }
 				))
