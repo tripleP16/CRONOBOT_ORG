@@ -20,6 +20,10 @@ const FISH_VOICE_MODELS = {
 	ari: () => process.env.FISH_AUDIO_ARI_MODEL_ID || 'a7a8e99837144ffbb78a4f5072199426',
 	// Voz clonada de El Rubius (modelo comunitario "Rubius")
 	rubius: () => process.env.FISH_AUDIO_RUBIUS_MODEL_ID || 'a43b1ac435f74a84984d083f8adaa0d9',
+	// Voz clonada de Nicki Nicole (modelo comunitario "Nicki Nicole")
+	nicki: () => process.env.FISH_AUDIO_NICKI_MODEL_ID || '6386397c1ad34d8e9932178ec63ef8d5',
+	// Voz clonada de Emilia Mernes (modelo comunitario "Emilia Mernes")
+	emilia: () => process.env.FISH_AUDIO_EMILIA_MODEL_ID || 'fdc09441d4124a5fa1694433dcd95961',
 	// Voz clonada de Dalas Review (modelo comunitario "Dalas Review")
 	dalas: () => process.env.FISH_AUDIO_DALAS_MODEL_ID || '7b1f244402da4b04889bf7e7830c8af5',
 	// Voz clonada de Hugo Chávez (modelo comunitario "Hugo Chavez (ExPresidente de Venezuela)")

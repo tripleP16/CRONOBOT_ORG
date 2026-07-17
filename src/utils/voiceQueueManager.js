@@ -26,6 +26,8 @@ const VOICE_LABELS = {
 	seductora: 'E-girl Seductora (IA)',
 	ari: 'AriGameplays (IA)',
 	rubius: 'El Rubius (IA)',
+	nicki: 'Nicki Nicole (IA)',
+	emilia: 'Emilia Mernes (IA)',
 	dalas: 'Dalas Review (IA)',
 	chavez: 'Hugo Chávez (IA)',
 	google: 'Google Translate',
