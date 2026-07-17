@@ -51,3 +51,4 @@
 - `[x]` Agregar voces de IA de Nicki Nicole y Emilia Mernes en `/decir-ia`
 - `[x]` Agregar voces de IA de Maria Becerra, Aroyitt y Cristinini en `/decir-ia`
 - `[x]` Agregar voces de IA de Lionel Messi y Cristiano Ronaldo en `/decir-ia`
+- `[x]` Agregar opción `modelo` en `/decir-ia` para elegir el modelo de síntesis S2.1 Pro (free tier)

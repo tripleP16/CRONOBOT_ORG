@@ -71,9 +71,10 @@ function isFishVoice(voice) {
  * @param {string} text - Texto a sintetizar.
  * @param {string} voice - Nombre de la voz (cualquier clave de FISH_VOICE_MODELS).
  * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste', 'cabreado' o 'cachondo'.
+ * @param {string|null} [synthModel=null] - Modelo de síntesis a usar (ej. 's2.1-pro-free'); null usa el del servidor (FISH_AUDIO_MODEL).
  * Devuelve un stream de audio MP3 listo para pasar a createAudioResource.
  */
-async function createFishStream(text, voice, intensity = 'normal') {
+async function createFishStream(text, voice, intensity = 'normal', synthModel = null) {
 	if (!isFishVoice(voice)) {
 		throw new Error(`Voz de IA desconocida: ${voice}`);
 	}
@@ -92,7 +93,7 @@ async function createFishStream(text, voice, intensity = 'normal') {
 			headers: {
 				'Authorization': `Bearer ${process.env.FISH_AUDIO_API_KEY}`,
 				'Content-Type': 'application/json',
-				'model': process.env.FISH_AUDIO_MODEL || 's2.1-pro',
+				'model': synthModel || process.env.FISH_AUDIO_MODEL || 's2.1-pro',
 			},
 			body: JSON.stringify({
 				text: finalText,
@@ -135,12 +136,13 @@ function getGoogleTTSUrl(text) {
  * @param {string} text - Texto a sintetizar.
  * @param {string} voiceOption - Voz solicitada (clave de FISH_VOICE_MODELS o 'google').
  * @param {string} [intensity='normal'] - Intensidad: 'normal', 'emocionado', 'triste', 'cabreado' o 'cachondo' (solo voces de IA).
+ * @param {string|null} [synthModel=null] - Modelo de síntesis de Fish Audio; null usa el del servidor (FISH_AUDIO_MODEL).
  * @returns {Promise<{streamOrUrl: (import('node:stream').Readable|string), voiceUsed: string}>}
  */
-async function getAudioStream(text, voiceOption, intensity = 'normal') {
+async function getAudioStream(text, voiceOption, intensity = 'normal', synthModel = null) {
 	if (isFishVoice(voiceOption) && isFishVoiceAvailable()) {
 		try {
-			const stream = await createFishStream(text, voiceOption, intensity);
+			const stream = await createFishStream(text, voiceOption, intensity, synthModel);
 			return { streamOrUrl: stream, voiceUsed: voiceOption };
 		} catch (fishError) {
 			console.error('[ERROR] Fish Audio falló, usando voz de Google como respaldo:', fishError.message);
